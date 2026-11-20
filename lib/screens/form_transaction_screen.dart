@@ -29,110 +29,25 @@ class FormTransactionScreen extends StatefulWidget {
 class _FormTransactionScreenState extends State<FormTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   late String _jenis;
-  late String _categoryTxType;
+  String _categoryTxType = 'belanja_material';
   late int? _selectedCategoryId;
   String _metode = 'kas_tunai';
   final _nominalController = TextEditingController();
   final _namaPihakController = TextEditingController();
   final _keteranganController = TextEditingController();
 
-  // --- Kategori Aliran Kas Keluar (Relasi Neraca Aktiva / Biaya) ---
-  static const List<Map<String, dynamic>> _expenseCategories = [
-    {
-      'value': 'belanja_material',
-      'label': 'Belanja Material Proyek',
-      'badge': 'Aktiva Persediaan',
-      'icon': Icons.inventory_2_rounded,
-      'color': Color(0xFF0081A7),
-      'desc': 'Masuk stok logistik gudang & persediaan aset di neraca',
-    },
-    {
-      'value': 'upah_tukang',
-      'label': 'Upah Tenaga Kerja & Tukang',
-      'badge': 'Biaya / Beban',
-      'icon': Icons.engineering_rounded,
-      'color': Color(0xFFF59E0B),
-      'desc': 'Ongkos tukang harian, borongan, atau mandor lapangan',
-    },
-    {
-      'value': 'operasional_lapangan',
-      'label': 'Operasional & Konsumsi Lapangan',
-      'badge': 'Biaya / Beban',
-      'icon': Icons.coffee_rounded,
-      'color': Color(0xFF10B981),
-      'desc': 'Konsumsi tukang, bahan bakar, dan kebutuhan operasional',
-    },
-    {
-      'value': 'sewa_alat',
-      'label': 'Sewa Alat & Mesin Proyek',
-      'badge': 'Biaya / Beban',
-      'icon': Icons.construction_rounded,
-      'color': Color(0xFF6366F1),
-      'desc': 'Sewa molen cor, scaffolding, atau armada angkut',
-    },
-    {
-      'value': 'hutang_bayar',
-      'label': 'Pelunasan Hutang ke Toko/Supplier',
-      'badge': 'Passiva Kewajiban',
-      'icon': Icons.payment_rounded,
-      'color': Color(0xFFEF4444),
-      'desc': 'Otomatis mengurangi catatan kewajiban hutang aktif di pos',
-    },
-    {
-      'value': 'piutang_pinjam',
-      'label': 'Pemberian Pinjaman / Talangan',
-      'badge': 'Aktiva Piutang',
-      'icon': Icons.handshake_rounded,
-      'color': Color(0xFF8B5CF6),
-      'desc': 'Dana ditalangkan / dipinjamkan ke pihak luar',
-    },
-    {
-      'value': 'biaya_umum',
-      'label': 'Biaya Administrasi & Umum Pos',
-      'badge': 'Biaya / Beban',
-      'icon': Icons.description_rounded,
-      'color': Color(0xFF64748B),
-      'desc': 'ATK, pelaporan, atau biaya umum pos lapangan',
-    },
-  ];
+  Map<String, dynamic>? _neracaData;
+  bool _isLoadingNeraca = false;
 
-  // --- Kategori Aliran Kas Masuk (Relasi Neraca Passiva / Sumber Dana) ---
-  static const List<Map<String, dynamic>> _incomeCategories = [
-    {
-      'value': 'donasi_langsung',
-      'label': 'Donasi / Infaq Langsung di Pos',
-      'badge': 'Sumber Dana',
-      'icon': Icons.volunteer_activism_rounded,
-      'color': Color(0xFF00AA13),
-      'desc': 'Infaq tunai / transfer langsung dari donatur ke pos lapangan',
-    },
-    {
-      'value': 'alokasi_pusat',
-      'label': 'Drop / Alokasi Dana dari Pusat',
-      'badge': 'Sumber Dana',
-      'icon': Icons.account_balance_rounded,
-      'color': Color(0xFF0081A7),
-      'desc': 'Penerimaan droping dana dari rekening bendahara pusat',
-    },
-    {
-      'value': 'hutang_pinjam',
-      'label': 'Pinjaman Baru (Hutang Pos)',
-      'badge': 'Kewajiban',
-      'icon': Icons.move_to_inbox_rounded,
-      'color': Color(0xFFEF4444),
-      'desc': 'Meminjam dana / talangan dari pihak luar atau toko',
-    },
-    {
-      'value': 'piutang_bayar',
-      'label': 'Penerimaan Pelunasan Piutang',
-      'badge': 'Pengembalian Piutang',
-      'icon': Icons.price_check_rounded,
-      'color': Color(0xFF10B981),
-      'desc': 'Pihak luar mengembalikan dana talangan / piutang',
-    },
-  ];
-
-  bool get _isMaterialPurchase => _jenis == 'expense' && _categoryTxType == 'belanja_material';
+  bool get _isMaterialPurchase {
+    if (_jenis != 'expense') return false;
+    final val = _categoryTxType.toLowerCase();
+    return val == 'belanja_material' ||
+        val == 'm' ||
+        val.contains('material') ||
+        val.contains('barang') ||
+        val.contains('logistik');
+  }
 
   // --- Integrasi Belanja Material ---
   bool _isNewMaterial = false;
@@ -158,13 +73,10 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
   void initState() {
     super.initState();
     _jenis = widget.initialType;
-    _categoryTxType = _jenis == 'income' ? 'donasi_langsung' : 'belanja_material';
     _selectedCategoryId = widget.initialCategoryId ??
         (widget.categories.isNotEmpty ? widget.categories.first.id : null);
 
-    if (_isMaterialPurchase && _selectedCategoryId != null) {
-      _loadMaterials(_selectedCategoryId);
-    }
+    _loadNeracaAndMaterials(_selectedCategoryId);
   }
 
   @override
@@ -178,6 +90,139 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
     _materialPriceController.dispose();
     _customUnitController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadNeracaAndMaterials(int? catId) async {
+    if (catId == null) return;
+    setState(() => _isLoadingNeraca = true);
+    final neraca = await widget.apiService.getPosBalanceSheet(catId);
+    if (!mounted) return;
+    setState(() {
+      _neracaData = neraca;
+      _isLoadingNeraca = false;
+      _ensureValidCategorySelection();
+    });
+
+    if (_isMaterialPurchase) {
+      _loadMaterials(catId);
+    }
+  }
+
+  void _ensureValidCategorySelection() {
+    final available = _getAvailableCategories();
+    if (!available.any((c) => c['value'] == _categoryTxType)) {
+      if (available.isNotEmpty) {
+        _categoryTxType = available.first['value'] as String;
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> _getAvailableCategories() {
+    if (_jenis == 'income') {
+      return [
+        {
+          'value': 'alokasi_pusat',
+          'label': 'Alokasi Kas dari Donasi Pusat',
+          'badge': 'Sumber Dana',
+          'icon': Icons.account_balance_rounded,
+          'color': const Color(0xFF0081A7),
+          'desc': 'Droping dana dari rekening bendahara pusat ke kas pos',
+        },
+        {
+          'value': 'pendapatan_pos_langsung',
+          'label': 'Donasi / Penerimaan Langsung Pos',
+          'badge': 'Sumber Dana',
+          'icon': Icons.volunteer_activism_rounded,
+          'color': const Color(0xFF00AA13),
+          'desc': 'Infaq tunai / transfer langsung dari donatur ke pos lapangan',
+        },
+        {
+          'value': 'hutang_pinjam',
+          'label': 'Pinjaman Baru (Hutang Pos)',
+          'badge': 'Kewajiban',
+          'icon': Icons.move_to_inbox_rounded,
+          'color': const Color(0xFFEF4444),
+          'desc': 'Meminjam dana / talangan dari pihak luar atau toko',
+        },
+        {
+          'value': 'piutang_bayar',
+          'label': 'Penerimaan Pelunasan Piutang',
+          'badge': 'Piutang',
+          'icon': Icons.price_check_rounded,
+          'color': const Color(0xFF10B981),
+          'desc': 'Pihak luar mengembalikan dana talangan / piutang ke pos',
+        },
+      ];
+    } else {
+      // Ambil pos biaya riil yang terkonfigurasi di Neraca Pos ini
+      final neracaBiaya = (_neracaData?['aktiva']?['biaya_operasional'] as List?) ?? [];
+      final List<Map<String, dynamic>> list = [];
+
+      for (final item in neracaBiaya) {
+        if (item is Map) {
+          final code = item['code']?.toString() ?? '-';
+          final name = item['name']?.toString() ?? 'Biaya Lapangan';
+          final val = (item['code'] != null && item['code'].toString().isNotEmpty)
+              ? item['code'].toString()
+              : name;
+          final isMat = code.toUpperCase() == 'M' ||
+              name.toLowerCase().contains('material') ||
+              name.toLowerCase().contains('barang') ||
+              name.toLowerCase().contains('logistik');
+
+          list.add({
+            'value': val,
+            'label': '[$code] $name',
+            'badge': 'Biaya Neraca',
+            'icon': isMat ? Icons.inventory_2_rounded : Icons.account_balance_wallet_rounded,
+            'color': isMat ? const Color(0xFF0081A7) : const Color(0xFF0284C7),
+            'desc': isMat
+                ? 'Otomatis masuk stok logistik gudang & persediaan aset pos'
+                : 'Beban operasional riil pos yang tercatat pada Neraca',
+          });
+        }
+      }
+
+      // Jika di neraca pos belum ada baris kustom, gunakan cadangan standar
+      if (list.isEmpty) {
+        list.add({
+          'value': 'belanja_material',
+          'label': '[M] Belanja Material Proyek',
+          'badge': 'Persediaan',
+          'icon': Icons.inventory_2_rounded,
+          'color': const Color(0xFF0081A7),
+          'desc': 'Masuk stok logistik gudang & persediaan aset pos',
+        });
+        list.add({
+          'value': 'operasional_lapangan',
+          'label': '[OP] Biaya Operasional Lapangan',
+          'badge': 'Beban Pos',
+          'icon': Icons.coffee_rounded,
+          'color': const Color(0xFF10B981),
+          'desc': 'Keperluan operasional & konsumsi lapangan',
+        });
+      }
+
+      // Opsi transaksi hutang/piutang (selaras dengan portal website)
+      list.add({
+        'value': 'hutang_bayar',
+        'label': 'Pelunasan Hutang ke Toko/Supplier',
+        'badge': 'Passiva Hutang',
+        'icon': Icons.payment_rounded,
+        'color': const Color(0xFFEF4444),
+        'desc': 'Mengurangi sisa kewajiban hutang aktif di pos ini',
+      });
+      list.add({
+        'value': 'piutang_pinjam',
+        'label': 'Pemberian Pinjaman / Talangan',
+        'badge': 'Aktiva Piutang',
+        'icon': Icons.handshake_rounded,
+        'color': const Color(0xFF8B5CF6),
+        'desc': 'Dana ditalangkan / dipinjamkan ke pihak luar',
+      });
+
+      return list;
+    }
   }
 
   Future<void> _loadMaterials(int? catId) async {
@@ -322,13 +367,13 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
     if (success) {
       String msg;
       if (_isMaterialPurchase) {
-        msg = 'Belanja material dicatat! Kas berkurang & persediaan logistik otomatis bertambah di Neraca.';
+        msg = 'Belanja material dicatat! Kas pos berkurang & stok logistik otomatis bertambah di Neraca.';
       } else if (_categoryTxType == 'hutang_bayar') {
         msg = 'Pelunasan hutang dicatat! Sisa hutang di modul Hutang otomatis berkurang.';
       } else if (_categoryTxType == 'piutang_pinjam') {
         msg = 'Pemberian talangan/piutang dicatat di modul Piutang & Neraca.';
       } else {
-        msg = 'Transaksi kas berhasil dicatat dan masuk ke Neraca!';
+        msg = 'Transaksi kas berhasil dicatat dan masuk ke Neraca Pos!';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -352,7 +397,7 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
   }
 
   String _getCurrentCategoryDesc() {
-    final list = _jenis == 'income' ? _incomeCategories : _expenseCategories;
+    final list = _getAvailableCategories();
     final item = list.firstWhere((e) => e['value'] == _categoryTxType, orElse: () => list.first);
     return item['desc'] as String;
   }
@@ -360,35 +405,26 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
   String _getPihakLabel() {
     if (_jenis == 'income') {
       switch (_categoryTxType) {
-        case 'donasi_langsung':
-          return 'Nama Donatur / Pihak Pemberi';
         case 'alokasi_pusat':
-          return 'Sumber Transfer / Alokasi Pusat';
+          return 'Sumber Transfer / Rekening Pusat';
+        case 'pendapatan_pos_langsung':
+          return 'Nama Donatur / Pihak Pemberi';
         case 'hutang_pinjam':
-          return 'Nama Pihak Pemberi Pinjaman / Toko';
+          return 'Nama Toko / Pihak Pemberi Hutang';
         case 'piutang_bayar':
           return 'Nama Pihak yang Mengembalikan Piutang';
         default:
-          return 'Nama Pihak Donatur / Pengirim';
+          return 'Nama Donatur / Pihak Luar';
       }
     } else {
-      switch (_categoryTxType) {
-        case 'belanja_material':
-          return 'Nama Toko Bangunan / Supplier';
-        case 'upah_tukang':
-          return 'Nama Mandor / Tenaga Kerja';
-        case 'operasional_lapangan':
-          return 'Penyedia / Toko Konsumsi Lapangan';
-        case 'sewa_alat':
-          return 'Penyedia Sewa Alat & Mesin';
-        case 'hutang_bayar':
-          return 'Nama Toko / Kreditur yang Dilunasi';
-        case 'piutang_pinjam':
-          return 'Nama Peminjam / Pihak yang Ditalangi';
-        case 'biaya_umum':
-          return 'Penerima Pembayaran Administrasi';
-        default:
-          return 'Penerima Dana / Nama Pihak';
+      if (_isMaterialPurchase) {
+        return 'Nama Toko Bangunan / Supplier';
+      } else if (_categoryTxType == 'hutang_bayar') {
+        return 'Nama Toko / Kreditur yang Dilunasi';
+      } else if (_categoryTxType == 'piutang_pinjam') {
+        return 'Nama Peminjam / Pihak yang Ditalangi';
+      } else {
+        return 'Nama Penerima Dana / Toko';
       }
     }
   }
@@ -396,10 +432,10 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
   String _getPihakHint() {
     if (_jenis == 'income') {
       switch (_categoryTxType) {
-        case 'donasi_langsung':
-          return 'Misal: Hamba Allah / H. Sulaiman';
         case 'alokasi_pusat':
-          return 'Misal: Droping Kas Yayasan BNI Pusat';
+          return 'Misal: Droping Kas Bendahara Pusat';
+        case 'pendapatan_pos_langsung':
+          return 'Misal: Hamba Allah / H. Sulaiman';
         case 'hutang_pinjam':
           return 'Misal: TB. Hidayah (Pinjaman baru)';
         case 'piutang_bayar':
@@ -408,23 +444,14 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
           return 'Misal: Donatur / Pihak luar';
       }
     } else {
-      switch (_categoryTxType) {
-        case 'belanja_material':
-          return 'Misal: TB. Berkah / Toko Besi Jaya';
-        case 'upah_tukang':
-          return 'Misal: Mandor Sholeh (Minggu ke-2)';
-        case 'operasional_lapangan':
-          return 'Misal: Warung Bu Siti / SPBU';
-        case 'sewa_alat':
-          return 'Misal: Rental Molen Mandiri (3 Hari)';
-        case 'hutang_bayar':
-          return 'Misal: Toko Berkah (Otomatis potong hutang)';
-        case 'piutang_pinjam':
-          return 'Misal: Pak Syarif (Otomatis catat piutang)';
-        case 'biaya_umum':
-          return 'Misal: Fotokopi laporan / ATK pos';
-        default:
-          return 'Misal: Nama pihak penerima';
+      if (_isMaterialPurchase) {
+        return 'Misal: TB. Berkah / Toko Besi Jaya';
+      } else if (_categoryTxType == 'hutang_bayar') {
+        return 'Misal: Toko Berkah (Otomatis potong hutang)';
+      } else if (_categoryTxType == 'piutang_pinjam') {
+        return 'Misal: Pak Syarif (Otomatis catat piutang)';
+      } else {
+        return 'Misal: Mandor Sholeh / Toko';
       }
     }
   }
@@ -432,6 +459,7 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final isIncome = _jenis == 'income';
+    final categoriesList = _getAvailableCategories();
 
     return Scaffold(
       appBar: AppBar(
@@ -447,7 +475,7 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Modern Segmented Control
+              // Segmented Tab Pemasukan / Pengeluaran
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
@@ -461,7 +489,7 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
                         onTap: () {
                           setState(() {
                             _jenis = 'income';
-                            _categoryTxType = 'donasi_langsung';
+                            _ensureValidCategorySelection();
                           });
                         },
                         borderRadius: BorderRadius.circular(14),
@@ -498,8 +526,8 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
                         onTap: () {
                           setState(() {
                             _jenis = 'expense';
-                            _categoryTxType = 'belanja_material';
-                            if (_selectedCategoryId != null && _existingMaterials.isEmpty) {
+                            _ensureValidCategorySelection();
+                            if (_isMaterialPurchase && _selectedCategoryId != null && _existingMaterials.isEmpty) {
                               _loadMaterials(_selectedCategoryId);
                             }
                           });
@@ -607,95 +635,101 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
                       onChanged: (val) {
                         setState(() {
                           _selectedCategoryId = val;
-                          if (_isMaterialPurchase && val != null) {
-                            _selectedMaterialId = null;
-                            _loadMaterials(val);
-                          }
+                          _loadNeracaAndMaterials(val);
                         });
                       },
                     ),
 
                     const SizedBox(height: 16),
 
-                    // DROPDOWN KATEGORI ALIRAN KAS (BERELASI KE NERACA)
-                    DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      value: _categoryTxType,
-                      decoration: InputDecoration(
-                        labelText: isIncome
-                            ? 'Kategori Aliran Kas Masuk (Sumber Dana)'
-                            : 'Kategori Aliran Kas Keluar (Pos Neraca / Biaya)',
-                        prefixIcon: const Icon(Icons.account_tree_rounded, size: 20, color: AppTheme.primary),
-                      ),
-                      items: (isIncome ? _incomeCategories : _expenseCategories).map((c) {
-                        return DropdownMenuItem<String>(
-                          value: c['value'] as String,
-                          child: Row(
-                            children: [
-                              Icon(c['icon'] as IconData, size: 16, color: c['color'] as Color),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  c['label'] as String,
-                                  style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: (c['color'] as Color).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  c['badge'] as String,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
-                                    color: c['color'] as Color,
+                    // DROPDOWN KATEGORI ALIRAN KAS (DIAMBIL DARI NERACA POS TERSEBUT)
+                    if (_isLoadingNeraca)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: LinearProgressIndicator(color: AppTheme.primary, minHeight: 3),
+                      )
+                    else
+                      DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: categoriesList.any((c) => c['value'] == _categoryTxType)
+                            ? _categoryTxType
+                            : (categoriesList.isNotEmpty ? categoriesList.first['value'] as String : null),
+                        decoration: InputDecoration(
+                          labelText: isIncome
+                              ? 'Kategori Aliran Kas Masuk (Sumber Dana)'
+                              : 'Kategori Aliran Kas Keluar (Pos Neraca Pos Ini)',
+                          prefixIcon: const Icon(Icons.account_tree_rounded, size: 20, color: AppTheme.primary),
+                        ),
+                        items: categoriesList.map((c) {
+                          return DropdownMenuItem<String>(
+                            value: c['value'] as String,
+                            child: Row(
+                              children: [
+                                Icon(c['icon'] as IconData, size: 16, color: c['color'] as Color),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    c['label'] as String,
+                                    style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() {
-                            _categoryTxType = val;
-                            if (_isMaterialPurchase && _selectedCategoryId != null && _existingMaterials.isEmpty) {
-                              _loadMaterials(_selectedCategoryId);
-                            }
-                          });
-                        }
-                      },
-                    ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: (c['color'] as Color).withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    c['badge'] as String,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      color: c['color'] as Color,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              _categoryTxType = val;
+                              if (_isMaterialPurchase && _selectedCategoryId != null && _existingMaterials.isEmpty) {
+                                _loadMaterials(_selectedCategoryId);
+                              }
+                            });
+                          }
+                        },
+                      ),
 
                     // Kapsul Keterangan Akun Neraca
-                    Container(
-                      margin: const EdgeInsets.only(top: 8, bottom: 16),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceMuted,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.info_outline_rounded, size: 15, color: AppTheme.primary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _getCurrentCategoryDesc(),
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted, height: 1.3),
+                    if (!_isLoadingNeraca)
+                      Container(
+                        margin: const EdgeInsets.only(top: 8, bottom: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceMuted,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info_outline_rounded, size: 15, color: AppTheme.primary),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _getCurrentCategoryDesc(),
+                                style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted, height: 1.3),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
 
-                    // SECTION FORM BELANJA MATERIAL (MUNCUL OTOMATIS SAAT KATEGORI MATERIAL DIPILIH)
+                    // SECTION FORM BELANJA MATERIAL (HANYA MUNCUL JIKA KATEGORI MATERIAL DIPILIH)
                     if (_isMaterialPurchase) ...[
                       Container(
                         margin: const EdgeInsets.only(bottom: 18),
@@ -717,7 +751,7 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Rincian Belanja Material Proyek',
+                                  'Rincian Belanja Material Logistik Pos',
                                   style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 13, color: AppTheme.primaryDark),
                                 ),
                               ],
@@ -989,7 +1023,7 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
                         labelText: 'Keterangan Transaksi',
                         hintText: _isMaterialPurchase
                             ? 'Otomatis terisi nama material & kuantitas'
-                            : 'Misal: Ongkos tukang selasar, pembelian konsumsi rapat',
+                            : 'Misal: Ongkos kerja, pembelian konsumsi, dll.',
                       ),
                     ),
 
