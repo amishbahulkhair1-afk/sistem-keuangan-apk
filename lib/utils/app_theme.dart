@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Brand Colors - GoPay Signature Blue Palette
-  static const Color primary = Color(0xFF0081A7); // GoPay Deep Blue
+  // Brand Colors - Ocean Blue Palette
+  static const Color primary = Color(0xFF0081A7); // Vibrant Deep Blue
   static const Color primaryDark = Color(0xFF005F7A);
   static const Color primaryDarker = Color(0xFF004457);
-  static const Color primaryLight = Color(0xFFE5F7FB); // GoPay Ice Blue
-  static const Color primaryAccent = Color(0xFF00AED6); // GoPay Vibrant Electric Cyan-Blue
+  static const Color primaryLight = Color(0xFFE5F7FB); // Ice Blue
+  static const Color primaryAccent = Color(0xFF00AED6); // Electric Cyan-Blue
 
-  // Secondary GoPay Accents
-  static const Color gopayBlue = Color(0xFF0081A7);
-  static const Color gopayCyan = Color(0xFF00AED6);
-  static const Color gopayDarkBlue = Color(0xFF003049);
+  // Secondary Accents
+  static const Color brandBlue = Color(0xFF0081A7);
+  static const Color brandCyan = Color(0xFF00AED6);
+  static const Color brandDarkBlue = Color(0xFF003049);
 
   // Backgrounds & Surfaces
-  static const Color background = Color(0xFFF6F8FB); // Clean fintech light off-white
+  static const Color background = Color(0xFFF6F8FB); // Clean soft off-white
   static const Color surface = Colors.white;
   static const Color surfaceMuted = Color(0xFFEFF3F8); // Soft grey-blue
   static const Color cardBorder = Color(0xFFE5EBF2);
@@ -26,10 +26,10 @@ class AppTheme {
   static const Color textMuted = Color(0xFF64748B);
   static const Color textLight = Color(0xFF94A3B8);
 
-  // Semantic Colors - GoPay Signature
-  static const Color income = Color(0xFF00AA13); // Gojek/GoPay vibrant green
+  // Semantic Colors
+  static const Color income = Color(0xFF00AA13); // Emerald green
   static const Color incomeBg = Color(0xFFEBF9ED);
-  static const Color expense = Color(0xFFEE2737); // GoPay vibrant red
+  static const Color expense = Color(0xFFEE2737); // Rose red
   static const Color expenseBg = Color(0xFFFDF0F1);
   static const Color warning = Color(0xFFF59E0B);
   static const Color warningBg = Color(0xFFFFFBEB);
@@ -57,7 +57,7 @@ class AppTheme {
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient gopayHeaderGradient = LinearGradient(
+  static const LinearGradient headerGradient = LinearGradient(
     colors: [Color(0xFF0081A7), Color(0xFF00AED6)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,

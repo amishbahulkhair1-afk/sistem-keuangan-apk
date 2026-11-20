@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Top User Greeting & Pos Switcher Bar (GoPay Style)
+            // Top User Greeting & Pos Switcher Bar
             Row(
               children: [
                 Container(
@@ -305,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 18),
 
-            // GoPay Signature Pocket / Wallet Card
+            // Kartu Ringkasan Saldo Kas
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -315,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Column(
                 children: [
-                  // GoPay Blue Gradient Top Pocket Banner
+                  // Blue Gradient Top Header
                   Container(
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
                     decoration: BoxDecoration(
@@ -347,7 +347,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'gopay Pos • ${_selectedCategory?.code ?? "POS"}',
+                                    'Kas Lapangan • ${_selectedCategory?.code ?? "POS"}',
                                     style: GoogleFonts.plusJakartaSans(
                                       color: Colors.white,
                                       fontSize: 11,
@@ -412,29 +412,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // 4 GoPay Action Buttons in Horizontal Row
+                  // 4 Action Buttons in Horizontal Row
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildGopayActionButton(
+                        _buildActionButton(
                           icon: Icons.arrow_upward_rounded,
-                          label: 'Bayar',
+                          label: 'Kas Keluar',
                           sublabel: 'Belanja',
                           color: AppTheme.expense,
                           bgColor: AppTheme.expenseBg,
                           onTap: () => _openFormTransaction('expense'),
                         ),
-                        _buildGopayActionButton(
-                          icon: Icons.add_rounded,
-                          label: 'Top Up',
+                        _buildActionButton(
+                          icon: Icons.arrow_downward_rounded,
+                          label: 'Kas Masuk',
                           sublabel: 'Donasi',
                           color: AppTheme.income,
                           bgColor: AppTheme.incomeBg,
                           onTap: () => _openFormTransaction('income'),
                         ),
-                        _buildGopayActionButton(
+                        _buildActionButton(
                           icon: Icons.inventory_2_rounded,
                           label: 'Material',
                           sublabel: 'Logistik',
@@ -442,10 +442,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           bgColor: AppTheme.primaryLight,
                           onTap: () => setState(() => _currentTabIndex = 2),
                         ),
-                        _buildGopayActionButton(
+                        _buildActionButton(
                           icon: Icons.handshake_rounded,
                           label: 'Hutang',
-                          sublabel: 'Tracking',
+                          sublabel: 'Piutang',
                           color: const Color(0xFF8B5CF6),
                           bgColor: const Color(0xFFF5F3FF),
                           onTap: () => setState(() => _currentTabIndex = 3),
@@ -459,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 22),
 
-            // Neraca Dinamis Pos Section Header (GoPay style)
+            // Neraca Dinamis Pos Section Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -494,12 +494,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 26),
 
-            // Recent Transactions Section Header (GoPay style)
+            // Recent Transactions Section Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Aktivitas Terbaru',
+                  'Transaksi Terbaru',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -509,7 +509,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 TextButton(
                   onPressed: () => setState(() => _currentTabIndex = 1),
                   child: Text(
-                    'Riwayat Lengkap >',
+                    'Lihat Semua >',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -613,7 +613,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildGopayActionButton({
+  Widget _buildActionButton({
     required IconData icon,
     required String label,
     required String sublabel,
@@ -1405,7 +1405,7 @@ class _HomeScreenState extends State<HomeScreen> {
             NavigationDestination(
               icon: Icon(Icons.receipt_long_outlined),
               selectedIcon: Icon(Icons.receipt_long_rounded, color: AppTheme.primary),
-              label: 'Aktivitas',
+              label: 'Transaksi',
             ),
             NavigationDestination(
               icon: Icon(Icons.inventory_2_outlined),
