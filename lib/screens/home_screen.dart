@@ -69,9 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    final posData = await widget.apiService.getPosTransactions(categoryId: _selectedCategory!.id);
-    final txs = await widget.apiService.getTransactions(categoryId: _selectedCategory!.id, limit: 10);
-    final neraca = await widget.apiService.getConsolidatedBalanceSheet();
+    final catId = _selectedCategory!.id;
+    final posData = await widget.apiService.getPosTransactions(categoryId: catId);
+    final txs = await widget.apiService.getTransactions(categoryId: catId, limit: 10);
+    final neraca = await widget.apiService.getPosBalanceSheet(catId);
 
     if (!mounted) return;
     setState(() {
@@ -729,15 +730,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNeracaCard() {
+    final pos = _neracaData?['pos'] as Map<String, dynamic>?;
     final aktiva = _neracaData?['aktiva'] as Map<String, dynamic>?;
     final passiva = _neracaData?['passiva'] as Map<String, dynamic>?;
     final reconciliation = _neracaData?['reconciliation'] as Map<String, dynamic>?;
+
+    final posName = pos?['name'] ?? _selectedCategory?.name ?? 'Pos Lapangan';
+    final posCode = pos?['code'] ?? _selectedCategory?.code ?? '-';
+    final picName = pos?['pic_name'] ?? 'Pengurus Lapangan';
 
     final totalAktiva = (aktiva?['total_aktiva'] ?? 0.0).toDouble();
     final totalPassiva = (passiva?['total_passiva'] ?? 0.0).toDouble();
     final isBalanced = reconciliation?['is_balanced'] == true;
     final statusText = reconciliation?['status'] ?? (isBalanced ? 'SEIMBANG (KLOP)' : 'DATA TERKONSOLIDASI');
-    final periodeText = _neracaData?['periode'] ?? 'Periode Berjalan';
 
     return Container(
       decoration: BoxDecoration(
@@ -761,40 +766,47 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryLight,
-                            borderRadius: BorderRadius.circular(12),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryLight,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.account_balance_rounded, color: AppTheme.primaryDark, size: 18),
                           ),
-                          child: const Icon(Icons.account_balance_rounded, color: AppTheme.primaryDark, size: 18),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Neraca Konsolidasi',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 14,
-                                color: AppTheme.textMain,
-                              ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Neraca: $posName',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 14,
+                                    color: AppTheme.textMain,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  'Kode: $posCode • PJ: $picName',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11,
+                                    color: AppTheme.textMuted,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
-                            Text(
-                              periodeText,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                color: AppTheme.textMuted,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -854,12 +866,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  'I. Total Aktiva',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.textMuted,
+                                Expanded(
+                                  child: Text(
+                                    'I. Aktiva Pos',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.textMuted,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -875,8 +890,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              'Harta Lancar Kas/Bank',
+                              'Kas Lapangan & Piutang',
                               style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -901,12 +917,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  'II. Total Passiva',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.textMuted,
+                                Expanded(
+                                  child: Text(
+                                    'II. Passiva Pos',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.textMuted,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -922,8 +941,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              'Akumulasi Dana Program',
+                              'Hutang & Alokasi Donasi',
                               style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -938,18 +958,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      statusText,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: isBalanced ? AppTheme.income : AppTheme.warning,
+                    Expanded(
+                      child: Text(
+                        statusText,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isBalanced ? AppTheme.income : AppTheme.warning,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Row(
                       children: [
                         Text(
-                          'Buka Rincian',
+                          'Buka Rincian Pos',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -971,17 +994,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showNeracaDetailSheet() {
+    final pos = _neracaData?['pos'] as Map<String, dynamic>?;
     final aktiva = _neracaData?['aktiva'] as Map<String, dynamic>?;
     final passiva = _neracaData?['passiva'] as Map<String, dynamic>?;
     final reconciliation = _neracaData?['reconciliation'] as Map<String, dynamic>?;
-    final pengesahan = _neracaData?['pengesahan'] as Map<String, dynamic>?;
+
+    final posName = pos?['name'] ?? _selectedCategory?.name ?? 'Pos Lapangan';
+    final posCode = pos?['code'] ?? _selectedCategory?.code ?? '-';
+    final picName = pos?['pic_name'] ?? 'Ainul Fais';
+    final categoryType = (pos?['category_type'] == 'proyek_pembangunan')
+        ? 'Proyek Pembangunan'
+        : 'Non-Pembangunan / Operasional';
 
     final hartaLancar = (aktiva?['harta_lancar'] as List?) ?? [];
-    final danaProgram = (passiva?['dana_program'] as List?) ?? [];
+    final biayaOperasional = (aktiva?['biaya_operasional'] as List?) ?? [];
+    final kewajiban = (passiva?['kewajiban'] as List?) ?? [];
+    final sumberDana = (passiva?['sumber_dana'] as List?) ?? [];
+
     final totalAktiva = (aktiva?['total_aktiva'] ?? 0.0).toDouble();
     final totalPassiva = (passiva?['total_passiva'] ?? 0.0).toDouble();
     final isBalanced = reconciliation?['is_balanced'] == true;
-    final periodeText = _neracaData?['periode'] ?? 'Periode Berjalan';
 
     showModalBottomSheet(
       context: context,
@@ -1033,7 +1065,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  'LAPORAN RESMI KONSOLIDASI',
+                                  'NERACA DINAMIS POS LAPANGAN',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w800,
@@ -1044,7 +1076,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'PENGEMBANGAN PEMBANGUNAN\nPP ANNUQAYAH LATEE',
+                                'NERACA: ${posName.toUpperCase()} ($posCode)',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
@@ -1054,7 +1086,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Guluk-Guluk Sumenep • $periodeText',
+                                'Pondok Pesantren Annuqayah Latee • PJ: $picName ($categoryType)',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 11,
                                   color: AppTheme.textMuted,
@@ -1096,7 +1128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Status Rekonsiliasi Otomatis',
+                                  'Status Neraca Pos: $posName',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 11,
                                     color: AppTheme.textMuted,
@@ -1128,38 +1160,77 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // SISI I: AKTIVA
-                          _buildNeracaSectionHeader('I. AKTIVA (HARTA LANCAR)', Icons.account_balance_rounded),
-                          const SizedBox(height: 8),
+                          _buildNeracaSectionHeader('I. AKTIVA (KEKAYAAN & REALISASI BIAYA POS)', Icons.account_balance_rounded),
+                          const SizedBox(height: 10),
+
+                          // Sub A: Harta Lancar & Persediaan
+                          _buildNeracaSubGroupHeader('A. Harta Lancar & Persediaan'),
                           if (hartaLancar.isEmpty)
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Text('(Belum ada data rekening)', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted)),
+                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                              child: Text('(Belum ada catatan harta lancar)', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted)),
                             )
                           else
                             ...hartaLancar.map((item) {
-                              final name = item['nama'] ?? item['name'] ?? '-';
-                              final saldo = (item['saldo'] ?? item['balance'] ?? 0.0).toDouble();
-                              return _buildNeracaRow(name, Formatters.formatCurrency(saldo));
+                              final code = item['code'] ?? '-';
+                              final name = item['name'] ?? '-';
+                              final amount = (item['amount'] ?? item['saldo'] ?? 0.0).toDouble();
+                              return _buildNeracaRow('[$code] $name', Formatters.formatCurrency(amount));
                             }),
-                          _buildNeracaTotalRow('TOTAL AKTIVA', Formatters.formatCurrency(totalAktiva), AppTheme.primary),
+
+                          // Sub B: Realisasi Biaya
+                          if (biayaOperasional.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            _buildNeracaSubGroupHeader('B. Akumulasi Realisasi Biaya Pos'),
+                            ...biayaOperasional.map((item) {
+                              final code = item['code'] ?? '-';
+                              final name = item['name'] ?? '-';
+                              final amount = (item['amount'] ?? 0.0).toDouble();
+                              return _buildNeracaRow('[$code] $name', Formatters.formatCurrency(amount));
+                            }),
+                          ],
+
+                          _buildNeracaTotalRow('TOTAL AKTIVA POS', Formatters.formatCurrency(totalAktiva), AppTheme.primary),
 
                           const SizedBox(height: 24),
 
                           // SISI II: PASSIVA
-                          _buildNeracaSectionHeader('II. PASSIVA (DANA PROGRAM & POS)', Icons.pie_chart_rounded),
-                          const SizedBox(height: 8),
-                          if (danaProgram.isEmpty)
+                          _buildNeracaSectionHeader('II. PASSIVA (SUMBER DANA & KEWAJIBAN POS)', Icons.pie_chart_rounded),
+                          const SizedBox(height: 10),
+
+                          // Sub A: Kewajiban & Hutang
+                          _buildNeracaSubGroupHeader('A. Kewajiban & Hutang Pos'),
+                          if (kewajiban.isEmpty)
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Text('(Belum ada data pos program)', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted)),
+                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                              child: Text('(Tidak ada kewajiban hutang)', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted)),
                             )
                           else
-                            ...danaProgram.map((item) {
-                              final name = item['nama_pos'] ?? item['name'] ?? '-';
-                              final saldo = (item['saldo_akhir'] ?? item['balance'] ?? 0.0).toDouble();
-                              return _buildNeracaRow(name, Formatters.formatCurrency(saldo));
+                            ...kewajiban.map((item) {
+                              final code = item['code'] ?? '-';
+                              final name = item['name'] ?? '-';
+                              final amount = (item['amount'] ?? 0.0).toDouble();
+                              return _buildNeracaRow('[$code] $name', Formatters.formatCurrency(amount));
                             }),
-                          _buildNeracaTotalRow('TOTAL PASSIVA', Formatters.formatCurrency(totalPassiva), AppTheme.info),
+
+                          const SizedBox(height: 12),
+
+                          // Sub B: Sumber Dana
+                          _buildNeracaSubGroupHeader('B. Sumber Dana & Alokasi Lembaga'),
+                          if (sumberDana.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                              child: Text('(Belum ada alokasi donasi)', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted)),
+                            )
+                          else
+                            ...sumberDana.map((item) {
+                              final code = item['code'] ?? '-';
+                              final name = item['name'] ?? '-';
+                              final amount = (item['amount'] ?? 0.0).toDouble();
+                              return _buildNeracaRow('[$code] $name', Formatters.formatCurrency(amount));
+                            }),
+
+                          _buildNeracaTotalRow('TOTAL PASSIVA POS', Formatters.formatCurrency(totalPassiva), AppTheme.info),
 
                           const SizedBox(height: 28),
 
@@ -1175,7 +1246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'PENGESAHAN LAPORAN KONSOLIDASI',
+                                  'PENGESAHAN LAPORAN NERACA POS',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 11,
@@ -1190,25 +1261,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('Pemeriksa:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight)),
+                                        Text('Penanggung Jawab Pos:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight)),
                                         const SizedBox(height: 2),
                                         Text(
-                                          pengesahan?['pemeriksa'] ?? 'Ainul Fais',
+                                          picName,
                                           style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12, color: AppTheme.textMain),
                                         ),
-                                        Text('Auditor Internal', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textMuted)),
+                                        Text('Pengurus Lapangan', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textMuted)),
                                       ],
                                     ),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
-                                        Text('Penanggung Jawab:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight)),
+                                        Text('Mengetahui:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight)),
                                         const SizedBox(height: 2),
                                         Text(
-                                          pengesahan?['penanggung_jawab'] ?? 'Pimpinan Pesantren',
+                                          'Ainul Fais',
                                           style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12, color: AppTheme.textMain),
                                         ),
-                                        Text(pengesahan?['tanggal_laporan'] ?? 'Sumenep', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textMuted)),
+                                        Text('Auditor Internal Keuangan', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textMuted)),
                                       ],
                                     ),
                                   ],
@@ -1228,6 +1299,20 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildNeracaSubGroupHeader(String subtitle) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6, top: 4),
+      child: Text(
+        subtitle,
+        style: GoogleFonts.plusJakartaSans(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppTheme.primaryDark,
+        ),
+      ),
     );
   }
 

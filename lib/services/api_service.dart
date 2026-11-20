@@ -347,6 +347,17 @@ class ApiService {
   }
 
   // --- REPORTS & NERACA ---
+  Future<Map<String, dynamic>?> getPosBalanceSheet(int categoryId) async {
+    final uri = Uri.parse('$_baseUrl/api/reports/neraca-pos/$categoryId');
+    try {
+      final response = await http.get(uri, headers: _headers);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<Map<String, dynamic>?> getConsolidatedBalanceSheet({int? year, int? month}) async {
     final query = <String, String>{};
     if (year != null) query['year'] = year.toString();
