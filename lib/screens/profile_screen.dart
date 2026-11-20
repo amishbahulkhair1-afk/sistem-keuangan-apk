@@ -31,7 +31,10 @@ class ProfileScreen extends StatelessWidget {
               child: const Icon(Icons.dns_rounded, color: AppTheme.primary, size: 20),
             ),
             const SizedBox(width: 12),
-            const Text('Ganti URL Server API', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Ganti URL Server API',
+              style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textMain),
+            ),
           ],
         ),
         content: Column(
@@ -39,26 +42,35 @@ class ProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Gunakan http://10.0.2.2:8000 untuk Android Emulator, http://localhost:8000 untuk Web/Desktop, atau IP LAN komputer untuk HP fisik.',
+              'Gunakan http://10.0.2.2:8000 untuk Android Emulator, http://localhost:8000 untuk Web/Desktop, atau IP LAN komputer/domain server untuk HP fisik.',
               style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted, height: 1.4),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             TextField(
               controller: controller,
               decoration: InputDecoration(
                 labelText: 'Base URL Backend',
                 prefixIcon: const Icon(Icons.link_rounded, color: AppTheme.primary),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
               ),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Batal', style: GoogleFonts.plusJakartaSans(color: AppTheme.textMuted, fontWeight: FontWeight.w600)),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primary,
               foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () {
@@ -72,7 +84,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               );
             },
-            child: const Text('Simpan'),
+            child: Text('Simpan URL', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -85,26 +97,30 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profil Petugas', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18)),
+        title: Text(
+          'Profil & Akun Pengurus',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // User Avatar & Info Card
+            // User Avatar & Primary Info Card
             Container(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
+                border: Border.all(color: const Color(0xFFE5EBF2), width: 1.2),
                 boxShadow: AppTheme.cardShadow,
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 60,
-                    height: 60,
+                    width: 64,
+                    height: 64,
                     decoration: BoxDecoration(
                       gradient: AppTheme.primaryGradient,
                       borderRadius: BorderRadius.circular(20),
@@ -114,7 +130,7 @@ class ProfileScreen extends StatelessWidget {
                       child: Text(
                         user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'U',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 24,
+                          fontSize: 26,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
                         ),
@@ -127,7 +143,7 @@ class ProfileScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user?.name ?? 'Petugas Lapangan',
+                          user?.name ?? 'Pengurus Lapangan',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
@@ -140,21 +156,55 @@ class ProfileScreen extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted),
                         ),
                         const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryLight,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            (user?.role ?? 'petugas_lapangan').replaceAll('_', ' ').toUpperCase(),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.primaryDarker,
-                              letterSpacing: 0.5,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryLight,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                (user?.role ?? 'petugas_lapangan').replaceAll('_', ' ').toUpperCase(),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.primaryDark,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.incomeBg,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: const BoxDecoration(
+                                      color: AppTheme.income,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Aktif',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.income,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -165,17 +215,76 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
+            // Pos Program Assignment Section
+            Text(
+              'Pos Program yang Dikelola',
+              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.textMain),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE5EBF2), width: 1.2),
+                boxShadow: AppTheme.cardShadow,
+              ),
+              child: categories.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Tidak ada pos program yang ditetapkan',
+                        style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted),
+                      ),
+                    )
+                  : Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: categories.map((cat) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppTheme.surfaceMuted,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.apartment_rounded, size: 14, color: AppTheme.primary),
+                              const SizedBox(width: 6),
+                              Text(
+                                '[${cat.code}] ${cat.name}',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.textMain,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+            ),
+
+            const SizedBox(height: 20),
+
             // Settings Section
+            Text(
+              'Pengaturan & Konfigurasi Sistem',
+              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.textMain),
+            ),
+            const SizedBox(height: 10),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE5EBF2), width: 1.2),
                 boxShadow: AppTheme.cardShadow,
               ),
               child: Material(
                 color: Colors.transparent,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
@@ -183,7 +292,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.shield_outlined,
                       iconColor: AppTheme.primary,
                       title: 'Tingkat Hak Akses',
-                      subtitle: user?.accessLevel ?? 'full',
+                      subtitle: (user?.accessLevel ?? 'full').toUpperCase(),
                     ),
                     const Divider(height: 1, indent: 64, color: Color(0xFFF1F5F9)),
                     _buildSettingTile(
@@ -196,17 +305,24 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const Divider(height: 1, indent: 64, color: Color(0xFFF1F5F9)),
                     _buildSettingTile(
+                      icon: Icons.sync_rounded,
+                      iconColor: AppTheme.income,
+                      title: 'Mode Sinkronisasi',
+                      subtitle: 'Realtime Online Server',
+                    ),
+                    const Divider(height: 1, indent: 64, color: Color(0xFFF1F5F9)),
+                    _buildSettingTile(
                       icon: Icons.verified_outlined,
                       iconColor: AppTheme.purple,
                       title: 'Versi Aplikasi',
-                      subtitle: 'v1.0.0 (Flutter Modern)',
+                      subtitle: 'v1.2.0 (Fintech Edition)',
                     ),
                   ],
                 ),
               ),
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
             // Logout Button
             Container(
@@ -226,10 +342,13 @@ class ProfileScreen extends StatelessWidget {
                       context: context,
                       builder: (ctx) => AlertDialog(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        title: const Text('Konfirmasi Keluar'),
-                        content: const Text('Apakah Anda yakin ingin keluar dari akun petugas?'),
+                        title: Text('Konfirmasi Keluar', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 16)),
+                        content: Text('Apakah Anda yakin ingin keluar dari akun petugas?', style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppTheme.textMuted)),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: Text('Batal', style: GoogleFonts.plusJakartaSans(color: AppTheme.textMuted, fontWeight: FontWeight.w600)),
+                          ),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.expense,
@@ -237,7 +356,7 @@ class ProfileScreen extends StatelessWidget {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                             onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text('Keluar'),
+                            child: Text('Keluar', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
                           ),
                         ],
                       ),
@@ -256,7 +375,7 @@ class ProfileScreen extends StatelessWidget {
                           'Keluar dari Akun',
                           style: GoogleFonts.plusJakartaSans(
                             color: AppTheme.expense,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                             fontSize: 14,
                           ),
                         ),
@@ -266,6 +385,16 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
+
+            const SizedBox(height: 24),
+            Center(
+              child: Text(
+                'Sistem Pelaporan Keuangan & Material Lapangan\nv1.2.0 • Hak Cipta Terlindungi',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textLight, height: 1.5),
+              ),
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -281,7 +410,7 @@ class ProfileScreen extends StatelessWidget {
     VoidCallback? onTap,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -291,7 +420,7 @@ class ProfileScreen extends StatelessWidget {
         child: Icon(icon, color: iconColor, size: 20),
       ),
       title: Text(title, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.textMain)),
-      subtitle: Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted)),
+      subtitle: Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted)),
       trailing: trailing,
       onTap: onTap,
     );
