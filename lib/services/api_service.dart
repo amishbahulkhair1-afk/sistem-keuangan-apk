@@ -345,4 +345,21 @@ class ApiService {
     }
     return [];
   }
+
+  // --- REPORTS & NERACA ---
+  Future<Map<String, dynamic>?> getConsolidatedBalanceSheet({int? year, int? month}) async {
+    final query = <String, String>{};
+    if (year != null) query['year'] = year.toString();
+    if (month != null) query['month'] = month.toString();
+
+    final queryString = query.isEmpty ? '' : '?${Uri(queryParameters: query).query}';
+    final uri = Uri.parse('$_baseUrl/api/reports/neraca$queryString');
+    try {
+      final response = await http.get(uri, headers: _headers);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+    } catch (_) {}
+    return null;
+  }
 }

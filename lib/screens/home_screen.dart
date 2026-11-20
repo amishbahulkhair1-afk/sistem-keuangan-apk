@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   CategoryModel? _selectedCategory;
   Map<String, dynamic> _stats = {};
   List<TransactionModel> _recentTxs = [];
+  Map<String, dynamic>? _neracaData;
   bool _isLoading = true;
   bool _hideBalance = false;
 
@@ -70,11 +71,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final posData = await widget.apiService.getPosTransactions(categoryId: _selectedCategory!.id);
     final txs = await widget.apiService.getTransactions(categoryId: _selectedCategory!.id, limit: 10);
+    final neraca = await widget.apiService.getConsolidatedBalanceSheet();
 
     if (!mounted) return;
     setState(() {
       _stats = posData['summary'] ?? {};
       _recentTxs = txs;
+      _neracaData = neraca;
       _isLoading = false;
     });
   }
@@ -519,6 +522,37 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
+            const SizedBox(height: 24),
+
+            // Neraca Konsolidasi Section Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.account_balance_wallet_rounded, size: 18, color: AppTheme.primary),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Neraca Konsolidasi',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textMain,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  'Rekap Induk',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textLight, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Neraca Konsolidasi Card
+            _buildNeracaCard(),
+
             const SizedBox(height: 28),
 
             // Recent Transactions Section Header
@@ -690,6 +724,598 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNeracaCard() {
+    final aktiva = _neracaData?['aktiva'] as Map<String, dynamic>?;
+    final passiva = _neracaData?['passiva'] as Map<String, dynamic>?;
+    final reconciliation = _neracaData?['reconciliation'] as Map<String, dynamic>?;
+
+    final totalAktiva = (aktiva?['total_aktiva'] ?? 0.0).toDouble();
+    final totalPassiva = (passiva?['total_passiva'] ?? 0.0).toDouble();
+    final isBalanced = reconciliation?['is_balanced'] == true;
+    final statusText = reconciliation?['status'] ?? (isBalanced ? 'SEIMBANG (KLOP)' : 'DATA TERKONSOLIDASI');
+    final periodeText = _neracaData?['periode'] ?? 'Periode Berjalan';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
+          onTap: _showNeracaDetailSheet,
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header: KOP Tag & Status Badge
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryLight,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.account_balance_rounded, color: AppTheme.primaryDark, size: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Neraca Konsolidasi',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                                color: AppTheme.textMain,
+                              ),
+                            ),
+                            Text(
+                              periodeText,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                color: AppTheme.textMuted,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isBalanced ? AppTheme.incomeBg : AppTheme.warningBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isBalanced ? AppTheme.income.withValues(alpha: 0.3) : AppTheme.warning.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isBalanced ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                            size: 13,
+                            color: isBalanced ? AppTheme.income : AppTheme.warning,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isBalanced ? 'KLOP' : 'SELISIH',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: isBalanced ? AppTheme.income : AppTheme.warning,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Comparison Columns (Aktiva vs Passiva)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceMuted,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      // Sisi Aktiva
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'I. Total Aktiva',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              Formatters.formatCurrency(totalAktiva),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                                color: AppTheme.textMain,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              'Harta Lancar Kas/Bank',
+                              style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Container(width: 1, height: 36, color: const Color(0xFFCBD5E1)),
+                      const SizedBox(width: 12),
+
+                      // Sisi Passiva
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.info,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'II. Total Passiva',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              Formatters.formatCurrency(totalPassiva),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                                color: AppTheme.textMain,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              'Akumulasi Dana Program',
+                              style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Footer CTA Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      statusText,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isBalanced ? AppTheme.income : AppTheme.warning,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Buka Rincian',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppTheme.primary),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showNeracaDetailSheet() {
+    final aktiva = _neracaData?['aktiva'] as Map<String, dynamic>?;
+    final passiva = _neracaData?['passiva'] as Map<String, dynamic>?;
+    final reconciliation = _neracaData?['reconciliation'] as Map<String, dynamic>?;
+    final pengesahan = _neracaData?['pengesahan'] as Map<String, dynamic>?;
+
+    final hartaLancar = (aktiva?['harta_lancar'] as List?) ?? [];
+    final danaProgram = (passiva?['dana_program'] as List?) ?? [];
+    final totalAktiva = (aktiva?['total_aktiva'] ?? 0.0).toDouble();
+    final totalPassiva = (passiva?['total_passiva'] ?? 0.0).toDouble();
+    final isBalanced = reconciliation?['is_balanced'] == true;
+    final periodeText = _neracaData?['periode'] ?? 'Periode Berjalan';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (ctx) {
+        return Material(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          clipBehavior: Clip.antiAlias,
+          child: SafeArea(
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.88,
+              ),
+              child: Column(
+                children: [
+                  // Drag Handle
+                  Padding(
+                    padding: const EdgeInsets.only(top: 14, bottom: 8),
+                    child: Center(
+                      child: Container(
+                        width: 44,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE2E8F0),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Header with Close Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryLight,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'LAPORAN RESMI KONSOLIDASI',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.primaryDark,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'PENGEMBANGAN PEMBANGUNAN\nPP ANNUQAYAH LATEE',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.textMain,
+                                  height: 1.25,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Guluk-Guluk Sumenep • $periodeText',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  color: AppTheme.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 22),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Reconciliation Banner
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isBalanced ? AppTheme.incomeBg : AppTheme.warningBg,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isBalanced ? AppTheme.income.withValues(alpha: 0.3) : AppTheme.warning.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isBalanced ? Icons.verified_rounded : Icons.warning_amber_rounded,
+                            color: isBalanced ? AppTheme.income : AppTheme.warning,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Status Rekonsiliasi Otomatis',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                                Text(
+                                  reconciliation?['status'] ?? (isBalanced ? 'SEIMBANG (KLOP)' : 'PERIKSA SELISIH'),
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13,
+                                    color: isBalanced ? AppTheme.income : AppTheme.warning,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const Divider(color: Color(0xFFF1F5F9), height: 16),
+
+                  // Scrollable Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // SISI I: AKTIVA
+                          _buildNeracaSectionHeader('I. AKTIVA (HARTA LANCAR)', Icons.account_balance_rounded),
+                          const SizedBox(height: 8),
+                          if (hartaLancar.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text('(Belum ada data rekening)', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted)),
+                            )
+                          else
+                            ...hartaLancar.map((item) {
+                              final name = item['nama'] ?? item['name'] ?? '-';
+                              final saldo = (item['saldo'] ?? item['balance'] ?? 0.0).toDouble();
+                              return _buildNeracaRow(name, Formatters.formatCurrency(saldo));
+                            }),
+                          _buildNeracaTotalRow('TOTAL AKTIVA', Formatters.formatCurrency(totalAktiva), AppTheme.primary),
+
+                          const SizedBox(height: 24),
+
+                          // SISI II: PASSIVA
+                          _buildNeracaSectionHeader('II. PASSIVA (DANA PROGRAM & POS)', Icons.pie_chart_rounded),
+                          const SizedBox(height: 8),
+                          if (danaProgram.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text('(Belum ada data pos program)', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted)),
+                            )
+                          else
+                            ...danaProgram.map((item) {
+                              final name = item['nama_pos'] ?? item['name'] ?? '-';
+                              final saldo = (item['saldo_akhir'] ?? item['balance'] ?? 0.0).toDouble();
+                              return _buildNeracaRow(name, Formatters.formatCurrency(saldo));
+                            }),
+                          _buildNeracaTotalRow('TOTAL PASSIVA', Formatters.formatCurrency(totalPassiva), AppTheme.info),
+
+                          const SizedBox(height: 28),
+
+                          // Lembar Pengesahan (Signatures)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surfaceMuted,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'PENGESAHAN LAPORAN KONSOLIDASI',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 11,
+                                    color: AppTheme.textMuted,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Pemeriksa:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight)),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          pengesahan?['pemeriksa'] ?? 'Ainul Fais',
+                                          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12, color: AppTheme.textMain),
+                                        ),
+                                        Text('Auditor Internal', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textMuted)),
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text('Penanggung Jawab:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textLight)),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          pengesahan?['penanggung_jawab'] ?? 'Pimpinan Pesantren',
+                                          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12, color: AppTheme.textMain),
+                                        ),
+                                        Text(pengesahan?['tanggal_laporan'] ?? 'Sumenep', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppTheme.textMuted)),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNeracaSectionHeader(String title, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceMuted,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: AppTheme.textBody),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 12,
+                color: AppTheme.textBody,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNeracaRow(String name, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              name,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: AppTheme.textBody,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textMain,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNeracaTotalRow(String label, String value, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              color: color,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontWeight: FontWeight.w800,
+              fontSize: 15,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }
