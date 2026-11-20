@@ -228,7 +228,7 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
         SnackBar(
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          backgroundColor: const Color(0xFF0D9488),
+          backgroundColor: AppTheme.primary,
           content: Text(msg),
         ),
       );

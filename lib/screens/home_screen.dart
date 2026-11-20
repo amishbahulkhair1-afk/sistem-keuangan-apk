@@ -206,27 +206,59 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Top User Greeting & Pos Switcher Bar
+            // Top User Greeting & Pos Switcher Bar (GoPay Style)
             Row(
               children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryLight,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.primary, width: 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'P',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Selamat Bertugas,',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        user?.name ?? 'Petugas Lapangan',
+                        'Hai, ${user?.name ?? "Petugas Lapangan"}',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: AppTheme.textMain,
-                          letterSpacing: -0.3,
                         ),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: AppTheme.income,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            user?.role == 'admin_keuangan' ? 'Administrator Keuangan' : 'Pengurus Pos Lapangan',
+                            style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -238,39 +270,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: _showPosSelectorSheet,
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
                       boxShadow: AppTheme.cardShadow,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.income,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
+                        const Icon(Icons.location_on_rounded, size: 14, color: AppTheme.primary),
+                        const SizedBox(width: 5),
                         ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 120),
+                          constraints: const BoxConstraints(maxWidth: 100),
                           child: Text(
                             _selectedCategory?.name ?? 'Pilih Pos',
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: AppTheme.textMain,
+                              color: AppTheme.primary,
                             ),
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppTheme.textMuted),
+                        const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppTheme.primary),
                       ],
                     ),
                   ),
@@ -278,267 +303,172 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
 
-            // Modern Luxury Wallet Card
+            // GoPay Signature Pocket / Wallet Card
             Container(
-              padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
-                borderRadius: BorderRadius.circular(26),
-                boxShadow: AppTheme.glowShadow(AppTheme.primary),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFE5EBF2), width: 1.2),
+                boxShadow: AppTheme.cardShadow,
               ),
-              child: Stack(
+              child: Column(
                 children: [
-                  // Decorative subtle background pattern
-                  Positioned(
-                    right: -20,
-                    top: -20,
-                    child: Container(
-                      width: 130,
-                      height: 130,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
+                  // GoPay Blue Gradient Top Pocket Banner
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
                     ),
-                  ),
-                  Positioned(
-                    right: 40,
-                    bottom: -30,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.05),
-                      ),
-                    ),
-                  ),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(Icons.wallet_rounded, color: Colors.white, size: 16),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Saldo Kas Lapangan',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            constraints: const BoxConstraints(),
-                            padding: EdgeInsets.zero,
-                            icon: Icon(
-                              _hideBalance ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                              color: Colors.white.withValues(alpha: 0.8),
-                              size: 18,
-                            ),
-                            onPressed: () => setState(() => _hideBalance = !_hideBalance),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _hideBalance ? 'Rp ••••••••' : Formatters.formatCurrency(saldoKas),
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-                        ),
-                        child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.22),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.income.withValues(alpha: 0.2),
+                                    width: 7,
+                                    height: 7,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(Icons.arrow_downward_rounded, color: Color(0xFF6EE7B7), size: 14),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Masuk', style: GoogleFonts.plusJakartaSans(color: Colors.white60, fontSize: 10)),
-                                        Text(
-                                          _hideBalance ? '••••••' : Formatters.formatCurrency(totalIn),
-                                          style: GoogleFonts.plusJakartaSans(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 12,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'gopay Pos • ${_selectedCategory?.code ?? "POS"}',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.3,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Container(width: 1, height: 24, color: Colors.white24),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.expense.withValues(alpha: 0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.arrow_upward_rounded, color: Color(0xFFFCA5A5), size: 14),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Keluar', style: GoogleFonts.plusJakartaSans(color: Colors.white60, fontSize: 10)),
-                                        Text(
-                                          _hideBalance ? '••••••' : Formatters.formatCurrency(totalOut),
-                                          style: GoogleFonts.plusJakartaSans(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 12,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                            IconButton(
+                              constraints: const BoxConstraints(),
+                              padding: EdgeInsets.zero,
+                              icon: Icon(
+                                _hideBalance ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                                color: Colors.white.withValues(alpha: 0.85),
+                                size: 18,
                               ),
+                              onPressed: () => setState(() => _hideBalance = !_hideBalance),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Text(
+                          _hideBalance ? 'Rp ••••••••' : Formatters.formatCurrency(saldoKas),
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white,
+                            fontSize: 27,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.arrow_downward_rounded, size: 12, color: Color(0xFF6EE7B7)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Masuk: ${_hideBalance ? "••••" : Formatters.formatCurrency(totalIn)}',
+                                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(width: 10),
+                              Container(width: 1, height: 12, color: Colors.white24),
+                              const SizedBox(width: 10),
+                              const Icon(Icons.arrow_upward_rounded, size: 12, color: Color(0xFFFCA5A5)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Keluar: ${_hideBalance ? "••••" : Formatters.formatCurrency(totalOut)}',
+                                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 4 GoPay Action Buttons in Horizontal Row
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildGopayActionButton(
+                          icon: Icons.arrow_upward_rounded,
+                          label: 'Bayar',
+                          sublabel: 'Belanja',
+                          color: AppTheme.expense,
+                          bgColor: AppTheme.expenseBg,
+                          onTap: () => _openFormTransaction('expense'),
+                        ),
+                        _buildGopayActionButton(
+                          icon: Icons.add_rounded,
+                          label: 'Top Up',
+                          sublabel: 'Donasi',
+                          color: AppTheme.income,
+                          bgColor: AppTheme.incomeBg,
+                          onTap: () => _openFormTransaction('income'),
+                        ),
+                        _buildGopayActionButton(
+                          icon: Icons.inventory_2_rounded,
+                          label: 'Material',
+                          sublabel: 'Logistik',
+                          color: AppTheme.primary,
+                          bgColor: AppTheme.primaryLight,
+                          onTap: () => setState(() => _currentTabIndex = 2),
+                        ),
+                        _buildGopayActionButton(
+                          icon: Icons.handshake_rounded,
+                          label: 'Hutang',
+                          sublabel: 'Tracking',
+                          color: const Color(0xFF8B5CF6),
+                          bgColor: const Color(0xFFF5F3FF),
+                          onTap: () => setState(() => _currentTabIndex = 3),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 22),
 
-            // Quick Actions Title
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Aksi Operasional',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.textMain,
-                  ),
-                ),
-                Text(
-                  'Shortcut',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textLight, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-
-            // 4 Modern Squircle Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSquircleAction(
-                    icon: Icons.add_rounded,
-                    label: 'Catat Masuk',
-                    sublabel: 'Donasi / Alokasi',
-                    color: AppTheme.income,
-                    bgColor: AppTheme.incomeBg,
-                    onTap: () => _openFormTransaction('income'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildSquircleAction(
-                    icon: Icons.remove_rounded,
-                    label: 'Catat Belanja',
-                    sublabel: 'Operasional Riil',
-                    color: AppTheme.expense,
-                    bgColor: AppTheme.expenseBg,
-                    onTap: () => _openFormTransaction('expense'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSquircleAction(
-                    icon: Icons.inventory_2_rounded,
-                    label: 'Stok Material',
-                    sublabel: 'Semen & Besi',
-                    color: AppTheme.warning,
-                    bgColor: AppTheme.warningBg,
-                    onTap: () => setState(() => _currentTabIndex = 2),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildSquircleAction(
-                    icon: Icons.handshake_rounded,
-                    label: 'Hutang Piutang',
-                    sublabel: 'Tracking Toko',
-                    color: AppTheme.info,
-                    bgColor: AppTheme.infoBg,
-                    onTap: () => setState(() => _currentTabIndex = 3),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // Neraca Konsolidasi Section Header
+            // Neraca Dinamis Pos Section Header (GoPay style)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.account_balance_wallet_rounded, size: 18, color: AppTheme.primary),
+                    const Icon(Icons.account_balance_rounded, size: 18, color: AppTheme.primary),
                     const SizedBox(width: 6),
                     Text(
-                      'Neraca Konsolidasi',
+                      'Neraca Pos Lapangan',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -548,24 +478,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 Text(
-                  'Rekap Induk',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textLight, fontWeight: FontWeight.w600),
+                  _selectedCategory?.code ?? 'POS',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
 
-            // Neraca Konsolidasi Card
+            // Neraca Pos Lapangan Card
             _buildNeracaCard(),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 26),
 
-            // Recent Transactions Section Header
+            // Recent Transactions Section Header (GoPay style)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Transaksi Terkini',
+                  'Aktivitas Terbaru',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -575,7 +509,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 TextButton(
                   onPressed: () => setState(() => _currentTabIndex = 1),
                   child: Text(
-                    'Lihat Semua',
+                    'Riwayat Lengkap >',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -585,7 +519,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
 
             if (_recentTxs.isEmpty)
               Container(
@@ -679,7 +613,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSquircleAction({
+  Widget _buildGopayActionButton({
     required IconData icon,
     required String label,
     required String sublabel,
@@ -689,42 +623,43 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(22),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
-          boxShadow: AppTheme.cardShadow,
-        ),
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: bgColor,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.18),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
               label,
               style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w800,
-                fontSize: 13,
+                fontSize: 12,
                 color: AppTheme.textMain,
               ),
             ),
-            const SizedBox(height: 2),
             Text(
               sublabel,
               style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w500,
                 fontSize: 10,
                 color: AppTheme.textMuted,
-                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -1470,7 +1405,7 @@ class _HomeScreenState extends State<HomeScreen> {
             NavigationDestination(
               icon: Icon(Icons.receipt_long_outlined),
               selectedIcon: Icon(Icons.receipt_long_rounded, color: AppTheme.primary),
-              label: 'Kas Pos',
+              label: 'Aktivitas',
             ),
             NavigationDestination(
               icon: Icon(Icons.inventory_2_outlined),
