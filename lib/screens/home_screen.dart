@@ -74,10 +74,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final txs = await widget.apiService.getTransactions(categoryId: catId, limit: 10);
     final neraca = await widget.apiService.getPosBalanceSheet(catId);
 
+    final List<TransactionModel> posTxs = (posData['transactions'] as List<TransactionModel>?) ?? [];
+    final List<TransactionModel> allRecent = [...posTxs, ...txs];
+    allRecent.sort((a, b) => b.tanggal.compareTo(a.tanggal));
+
     if (!mounted) return;
     setState(() {
       _stats = posData['summary'] ?? {};
-      _recentTxs = txs;
+      _recentTxs = allRecent.take(10).toList();
       _neracaData = neraca;
       _isLoading = false;
     });

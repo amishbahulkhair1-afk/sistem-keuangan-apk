@@ -166,6 +166,7 @@ class ApiService {
     String? photoPath,
     int? materialId,
     String? materialName,
+    String? materialBrand,
     double? materialQuantity,
     double? materialPrice,
     String? materialUnit,
@@ -187,6 +188,7 @@ class ApiService {
     if (description != null) request.fields['description'] = description;
     if (materialId != null) request.fields['material_id'] = materialId.toString();
     if (materialName != null) request.fields['material_name'] = materialName;
+    if (materialBrand != null) request.fields['material_brand'] = materialBrand;
     if (materialQuantity != null) request.fields['material_quantity'] = materialQuantity.toString();
     if (materialPrice != null) request.fields['material_price'] = materialPrice.toString();
     if (materialUnit != null) request.fields['material_unit'] = materialUnit;

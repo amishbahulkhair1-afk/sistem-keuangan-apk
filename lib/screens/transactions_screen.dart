@@ -47,14 +47,28 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   Future<void> _fetchTransactions() async {
     setState(() => _isLoading = true);
     final txType = _selectedFilter == 'all' ? null : _selectedFilter;
+
+    List<TransactionModel> combined = [];
+    if (widget.selectedCategoryId != null) {
+      final posRes = await widget.apiService.getPosTransactions(
+        categoryId: widget.selectedCategoryId,
+        txType: txType,
+      );
+      final List<TransactionModel> posList = (posRes['transactions'] as List<TransactionModel>?) ?? [];
+      combined.addAll(posList);
+    }
+
     final list = await widget.apiService.getTransactions(
       categoryId: widget.selectedCategoryId,
       txType: txType,
       limit: 150,
     );
+    combined.addAll(list);
+    combined.sort((a, b) => b.tanggal.compareTo(a.tanggal));
+
     if (!mounted) return;
     setState(() {
-      _transactions = list;
+      _transactions = combined;
       _isLoading = false;
     });
   }
