@@ -254,9 +254,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           const SizedBox(width: 5),
-                          Text(
-                            user?.role == 'admin_keuangan' ? 'Administrator Keuangan' : 'Pengurus Pos Lapangan',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted),
+                          Expanded(
+                            child: Text(
+                              user?.role == 'admin_keuangan' ? 'Admin Keuangan' : 'Pengurus Lapangan',
+                              style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -270,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: _showPosSelectorSheet,
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -281,20 +285,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.location_on_rounded, size: 14, color: AppTheme.primary),
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 4),
                         ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 100),
+                          constraints: const BoxConstraints(maxWidth: 90),
                           child: Text(
                             _selectedCategory?.name ?? 'Pilih Pos',
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.primary,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 2),
                         const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppTheme.primary),
                       ],
                     ),
@@ -387,25 +391,28 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.black.withValues(alpha: 0.14),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.arrow_downward_rounded, size: 12, color: Color(0xFF6EE7B7)),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Masuk: ${_hideBalance ? "••••" : Formatters.formatCurrency(totalIn)}',
-                                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(width: 10),
-                              Container(width: 1, height: 12, color: Colors.white24),
-                              const SizedBox(width: 10),
-                              const Icon(Icons.arrow_upward_rounded, size: 12, color: Color(0xFFFCA5A5)),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Keluar: ${_hideBalance ? "••••" : Formatters.formatCurrency(totalOut)}',
-                                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
-                              ),
-                            ],
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.arrow_downward_rounded, size: 12, color: Color(0xFF6EE7B7)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Masuk: ${_hideBalance ? "••••" : Formatters.formatCurrency(totalIn)}',
+                                  style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(width: 10),
+                                Container(width: 1, height: 12, color: Colors.white24),
+                                const SizedBox(width: 10),
+                                const Icon(Icons.arrow_upward_rounded, size: 12, color: Color(0xFFFCA5A5)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Keluar: ${_hideBalance ? "••••" : Formatters.formatCurrency(totalOut)}',
+                                  style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -463,20 +470,26 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.account_balance_rounded, size: 18, color: AppTheme.primary),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Neraca Pos Lapangan',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textMain,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.account_balance_rounded, size: 18, color: AppTheme.primary),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          'Neraca Pos Lapangan',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.textMain,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   _selectedCategory?.code ?? 'POS',
                   style: GoogleFonts.plusJakartaSans(
