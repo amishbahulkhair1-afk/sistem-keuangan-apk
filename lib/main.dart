@@ -48,19 +48,20 @@ class MyApp extends StatelessWidget {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Color(0xFF0284C7),
-                                Color(0xFF0369A1),
-                                Color(0xFF0F172A),
-                                Color(0xFF020617),
+                                Color(0xFF0077B6), // 0% Top: Biru laut Latee
+                                Color(0xFF0284C7), // 25%: Biru sky cerah
+                                Color(0xFF7DD3FC), // 55%: Soft blue
+                                Color(0xFFE0F2FE), // 78%: Ice blue muda
+                                Colors.white,      // 100% Bottom: Putih bersih
                               ],
-                              stops: [0.0, 0.35, 0.75, 1.0],
+                              stops: [0.0, 0.25, 0.55, 0.78, 1.0],
                             ),
                           ),
                         ),
                       ),
                       Positioned.fill(
                         child: Opacity(
-                          opacity: 0.30,
+                          opacity: 0.20,
                           child: Image.asset(
                             'assets/images/vector.png',
                             fit: BoxFit.cover,
@@ -75,18 +76,18 @@ class MyApp extends StatelessWidget {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.transparent,
-                                const Color(0xFF0369A1).withValues(alpha: 0.30),
-                                const Color(0xFF0F172A).withValues(alpha: 0.75),
-                                const Color(0xFF020617).withValues(alpha: 0.95),
+                                Colors.transparent,                              // 0%
+                                const Color(0xFF0284C7).withValues(alpha: 0.15), // 25%
+                                Colors.white.withValues(alpha: 0.65),            // 70%
+                                Colors.white.withValues(alpha: 0.95),            // 100%
                               ],
-                              stops: const [0.0, 0.30, 0.75, 1.0],
+                              stops: const [0.0, 0.25, 0.70, 1.0],
                             ),
                           ),
                         ),
                       ),
                       const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
+                        child: CircularProgressIndicator(color: AppTheme.primary),
                       ),
                     ],
                   ),

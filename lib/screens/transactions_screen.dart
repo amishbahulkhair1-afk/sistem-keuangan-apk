@@ -159,7 +159,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     '${widget.apiService.authService.baseUrl}${tx.buktiFoto}',
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    errorBuilder: (ctx, _, __) => Container(
+                    errorBuilder: (ctx, error, stackTrace) => Container(
                       height: 100,
                       decoration: BoxDecoration(color: AppTheme.surfaceMuted, borderRadius: BorderRadius.circular(16)),
                       child: const Center(child: Text('Foto tidak dapat dimuat', style: TextStyle(color: AppTheme.textMuted))),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
@@ -125,138 +126,173 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // 1. Background Gradient Top to Bottom 0% - 100%
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF0284C7), // 0% Top: Vibrant latee primary
-                    Color(0xFF0369A1), // 35%: Deep sky blue
-                    Color(0xFF0F172A), // 75%: Slate navy
-                    Color(0xFF020617), // 100% Bottom: Deep midnight
-                  ],
-                  stops: [0.0, 0.35, 0.75, 1.0],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+        body: Stack(
+          children: [
+            // 1. Background Gradient Dasar: Biru ke Putih (Top to Bottom)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFF0077B6), // 0% Top: Biru laut elegan Latee
+                      Color(0xFF0284C7), // 25%: Biru sky cerah
+                      Color(0xFF7DD3FC), // 55%: Soft blue
+                      Color(0xFFE0F2FE), // 78%: Ice blue muda
+                      Colors.white,      // 100% Bottom: Putih bersih
+                    ],
+                    stops: [0.0, 0.25, 0.55, 0.78, 1.0],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // 2. Vector Latee Full Screen
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.30,
-              child: Image.asset(
-                'assets/images/vector.png',
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-              ),
-            ),
-          ),
-
-          // 3. Gradasi Warna Top to Bottom Sampai 100% Overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,                              // 0%
-                    const Color(0xFF0369A1).withValues(alpha: 0.30), // 30%
-                    const Color(0xFF0F172A).withValues(alpha: 0.75), // 75%
-                    const Color(0xFF020617).withValues(alpha: 0.95), // 100%
-                  ],
-                  stops: const [0.0, 0.30, 0.75, 1.0],
+            // 2. Siluet Vector Ponpes Latee Full Screen
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0.20,
+                child: Image.asset(
+                  'assets/images/vector.png',
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
                 ),
               ),
             ),
-          ),
 
-          // Background ambient gradient circles
-          Positioned(
-            top: -100,
-            right: -80,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.10),
-                    Colors.white.withValues(alpha: 0.0),
-                  ],
+            // 3. Lapisan Gradasi Overlay Biru ke Putih Lembut
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,                              // 0%
+                      const Color(0xFF0284C7).withValues(alpha: 0.15), // 25%
+                      Colors.white.withValues(alpha: 0.65),            // 70%
+                      Colors.white.withValues(alpha: 0.95),            // 100%
+                    ],
+                    stops: const [0.0, 0.25, 0.70, 1.0],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Top App Brand Logo Circle
-                    Container(
-                      width: 84,
-                      height: 84,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+            // Background ambient gradient circles
+            Positioned(
+              top: -80,
+              right: -60,
+              child: Container(
+                width: 260,
+                height: 260,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      Colors.white.withValues(alpha: 0.20),
+                      Colors.white.withValues(alpha: 0.0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 140,
+              left: -70,
+              child: Container(
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      const Color(0xFF38BDF8).withValues(alpha: 0.25),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Top App Brand Logo Circle
+                      Container(
+                        width: 84,
+                        height: 84,
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0077B6).withValues(alpha: 0.30),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/logo.jpg',
+                            fit: BoxFit.cover,
                           ),
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/images/logo.jpg',
-                          fit: BoxFit.cover,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Donasi Latee',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
+                      const SizedBox(height: 16),
+                      Text(
+                        'Donasi Latee',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Pondok Pesantren Annuqayah Daerah Latee',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.85),
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Pondok Pesantren Annuqayah Daerah Latee',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.90),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 28),
+                      const SizedBox(height: 28),
 
-                    // Modern Card
-                    Container(
-                      padding: const EdgeInsets.all(26),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(color: const Color(0xFFE2E8F0).withValues(alpha: 0.7)),
-                        boxShadow: AppTheme.floatingShadow,
-                      ),
+                      // Modern Card
+                      Container(
+                        padding: const EdgeInsets.all(26),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0077B6).withValues(alpha: 0.08),
+                              blurRadius: 24,
+                              offset: const Offset(0, 8),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -387,9 +423,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0077B6).withValues(alpha: 0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: Column(
                         children: [
@@ -398,7 +441,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              color: AppTheme.textLight,
+                              color: AppTheme.textMuted,
                               letterSpacing: 0.8,
                             ),
                           ),
@@ -426,9 +469,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: AppTheme.surfaceMuted,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -452,8 +502,9 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildRoleChip(String label, String email, String pwd, Color color) {
     final isSelected = _emailController.text == email;
