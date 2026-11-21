@@ -361,7 +361,10 @@ class _MaterialScreenState extends State<MaterialScreen> with SingleTickerProvid
     }).toList();
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Text(
           'Logistik & Material Lapangan',
           style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18),
@@ -374,15 +377,18 @@ class _MaterialScreenState extends State<MaterialScreen> with SingleTickerProvid
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: null,
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        icon: const Icon(Icons.handyman_rounded, size: 20),
-        label: Text('Catat Pemakaian', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
-        onPressed: () => _showAddUsageDialog(),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 84),
+        child: FloatingActionButton.extended(
+          heroTag: null,
+          backgroundColor: AppTheme.primary,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          icon: const Icon(Icons.handyman_rounded, size: 20),
+          label: Text('Catat Pemakaian', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
+          onPressed: () => _showAddUsageDialog(),
+        ),
       ),
       body: Column(
         children: [
@@ -401,22 +407,28 @@ class _MaterialScreenState extends State<MaterialScreen> with SingleTickerProvid
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.inventory_2_rounded, size: 16, color: AppTheme.primary),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Pos: [${currentCat.code}] ${currentCat.name}',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textMain,
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.inventory_2_rounded, size: 16, color: AppTheme.primary),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Pos: [${currentCat.code}] ${currentCat.name}',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textMain,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    if (lowStockCount > 0)
+                    if (lowStockCount > 0) ...[
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
@@ -432,6 +444,7 @@ class _MaterialScreenState extends State<MaterialScreen> with SingleTickerProvid
                           ),
                         ),
                       ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -578,7 +591,7 @@ class _MaterialScreenState extends State<MaterialScreen> with SingleTickerProvid
                     child: Text('Tidak ada material yang cocok dengan pencarian', style: GoogleFonts.plusJakartaSans(color: AppTheme.textMuted, fontSize: 13)),
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 80),
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 110),
                     itemCount: list.length,
                     separatorBuilder: (c, i) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
@@ -672,8 +685,10 @@ class _MaterialScreenState extends State<MaterialScreen> with SingleTickerProvid
                                 color: AppTheme.surfaceMuted,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              child: Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                runSpacing: 4,
+                                spacing: 8,
                                 children: [
                                   Text(
                                     'Masuk: +${m.totalMasuk.toStringAsFixed(1)}',
@@ -740,7 +755,8 @@ class _MaterialScreenState extends State<MaterialScreen> with SingleTickerProvid
     return Column(
       children: [
         // Filter Pills
-        Padding(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           child: Row(
             children: [
@@ -769,7 +785,7 @@ class _MaterialScreenState extends State<MaterialScreen> with SingleTickerProvid
                   color: AppTheme.primary,
                   onRefresh: _loadData,
                   child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 80),
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 110),
                     itemCount: list.length,
                     separatorBuilder: (c, i) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {

@@ -128,6 +128,56 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          // 1. Background Gradient Top to Bottom 0% - 100%
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF0284C7), // 0% Top: Vibrant latee primary
+                    Color(0xFF0369A1), // 35%: Deep sky blue
+                    Color(0xFF0F172A), // 75%: Slate navy
+                    Color(0xFF020617), // 100% Bottom: Deep midnight
+                  ],
+                  stops: [0.0, 0.35, 0.75, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          // 2. Vector Latee Full Screen
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.30,
+              child: Image.asset(
+                'assets/images/vector.png',
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+              ),
+            ),
+          ),
+
+          // 3. Gradasi Warna Top to Bottom Sampai 100% Overlay
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,                              // 0%
+                    const Color(0xFF0369A1).withValues(alpha: 0.30), // 30%
+                    const Color(0xFF0F172A).withValues(alpha: 0.75), // 75%
+                    const Color(0xFF020617).withValues(alpha: 0.95), // 100%
+                  ],
+                  stops: const [0.0, 0.30, 0.75, 1.0],
+                ),
+              ),
+            ),
+          ),
+
           // Background ambient gradient circles
           Positioned(
             top: -100,
@@ -139,25 +189,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.primary.withValues(alpha: 0.18),
-                    AppTheme.primary.withValues(alpha: 0.0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -60,
-            left: -80,
-            child: Container(
-              width: 260,
-              height: 260,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppTheme.info.withValues(alpha: 0.12),
-                    AppTheme.info.withValues(alpha: 0.0),
+                    Colors.white.withValues(alpha: 0.10),
+                    Colors.white.withValues(alpha: 0.0),
                   ],
                 ),
               ),
@@ -171,40 +204,49 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Top App Brand Icon with soft glow
+                    // Top App Brand Logo Circle
                     Container(
-                      padding: const EdgeInsets.all(18),
+                      width: 84,
+                      height: 84,
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(26),
-                        boxShadow: AppTheme.glowShadow(AppTheme.primary),
-                      ),
-                      child: const Icon(
-                        Icons.account_balance_wallet_rounded,
                         color: Colors.white,
-                        size: 38,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo.jpg',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 16),
                     Text(
-                      'Sistem Pelaporan',
+                      'Donasi Latee',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
-                        color: AppTheme.textMain,
+                        color: Colors.white,
                         letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Donasi, Kas Pos & Material Lapangan',
+                      'Pondok Pesantren Annuqayah Daerah Latee',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 13,
-                        color: AppTheme.textMuted,
+                        color: Colors.white.withValues(alpha: 0.85),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
                     // Modern Card
                     Container(

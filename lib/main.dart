@@ -38,9 +38,57 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           home: authService.isLoading
-              ? const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(color: AppTheme.primary),
+              ? Scaffold(
+                  body: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Color(0xFF0284C7),
+                                Color(0xFF0369A1),
+                                Color(0xFF0F172A),
+                                Color(0xFF020617),
+                              ],
+                              stops: [0.0, 0.35, 0.75, 1.0],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: 0.30,
+                          child: Image.asset(
+                            'assets/images/vector.png',
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                const Color(0xFF0369A1).withValues(alpha: 0.30),
+                                const Color(0xFF0F172A).withValues(alpha: 0.75),
+                                const Color(0xFF020617).withValues(alpha: 0.95),
+                              ],
+                              stops: const [0.0, 0.30, 0.75, 1.0],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                    ],
                   ),
                 )
               : authService.isAuthenticated

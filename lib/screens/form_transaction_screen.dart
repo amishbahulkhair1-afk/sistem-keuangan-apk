@@ -462,19 +462,77 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
     final categoriesList = _getAvailableCategories();
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Text(
           isIncome ? 'Catat Kas Masuk Pos' : 'Catat Kas Keluar Pos',
           style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: Stack(
+        children: [
+          // 1. Background Gradient Dasar Top to Bottom (0% sampai 100%)
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFBAE6FD), // Biru langit cerah di atas (0%)
+                    Color(0xFFE0F2FE), // Biru cyan lembut (35%)
+                    Color(0xFFF0F7FF), // Biru portal Latee (70%)
+                    Color(0xFFFFFFFF), // Putih bersih di bawah (100%)
+                  ],
+                  stops: [0.0, 0.35, 0.70, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          // 2. Siluet Vector Ponpes Latee khas Portal Mobile (Full Screen)
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.28,
+              child: Image.asset(
+                'assets/images/vector.png',
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+              ),
+            ),
+          ),
+
+          // 3. Lapisan Gradasi Warna Top to Bottom Sampai 100% (Overlay)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    const Color(0xFFBAE6FD).withValues(alpha: 0.20),
+                    const Color(0xFFE0F2FE).withValues(alpha: 0.45),
+                    const Color(0xFFF0F7FF).withValues(alpha: 0.75),
+                    Colors.white.withValues(alpha: 0.95),
+                  ],
+                  stops: const [0.0, 0.40, 0.75, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          // Form Content
+          SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
               // Segmented Tab Pemasukan / Pengeluaran
               Container(
                 padding: const EdgeInsets.all(4),
@@ -750,9 +808,13 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
                                   child: const Icon(Icons.inventory_2_rounded, size: 16, color: Colors.white),
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
-                                  'Rincian Belanja Material Logistik Pos',
-                                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 13, color: AppTheme.primaryDark),
+                                Expanded(
+                                  child: Text(
+                                    'Rincian Belanja Material Logistik Pos',
+                                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 13, color: AppTheme.primaryDark),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1140,6 +1202,9 @@ class _FormTransactionScreenState extends State<FormTransactionScreen> {
           ),
         ),
       ),
+    ),
+  ],
+),
     );
   }
 }

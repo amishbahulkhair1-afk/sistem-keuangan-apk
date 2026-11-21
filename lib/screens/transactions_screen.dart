@@ -269,7 +269,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     final netBalance = totalIn - totalOut;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Text(
           'Jurnal Kas & Transaksi',
           style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18),
@@ -299,21 +302,27 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.account_balance_wallet_rounded, size: 16, color: AppTheme.primary),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Pos: [${currentCat.code}] ${currentCat.name}',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textMain,
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.account_balance_wallet_rounded, size: 16, color: AppTheme.primary),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Pos: [${currentCat.code}] ${currentCat.name}',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textMain,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
@@ -505,7 +514,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         color: AppTheme.primary,
                         onRefresh: _fetchTransactions,
                         child: ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                          padding: const EdgeInsets.fromLTRB(20, 6, 20, 110),
                           itemCount: _transactions.length,
                           separatorBuilder: (c, i) => const SizedBox(height: 8),
                           itemBuilder: (context, index) {

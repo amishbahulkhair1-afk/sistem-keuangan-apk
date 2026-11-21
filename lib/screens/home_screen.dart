@@ -202,112 +202,181 @@ class _HomeScreenState extends State<HomeScreen> {
       color: AppTheme.primary,
       onRefresh: _loadDashboardData,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.fromLTRB(18, 14, 18, 96),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Top User Greeting & Pos Switcher Bar
+            // Top User Greeting & App Brand Header (Mirip Portal Mobile)
             Row(
               children: [
+                // Logo Annuqayah Latee Circle
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryLight,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.primary, width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'P',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: AppTheme.primary,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.10),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.jpg',
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hai, ${user?.name ?? "Petugas Lapangan"}',
+                        'Donasi Latee',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: AppTheme.textMain,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              color: AppTheme.income,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Text(
-                              user?.role == 'admin_keuangan' ? 'Admin Keuangan' : 'Pengurus Lapangan',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'PP Annuqayah Latee',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textMuted,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
 
-                // Pos Pill Button
-                InkWell(
-                  onTap: _showPosSelectorSheet,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
-                      boxShadow: AppTheme.cardShadow,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.location_on_rounded, size: 14, color: AppTheme.primary),
-                        const SizedBox(width: 4),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 90),
+                // User Badge Chip
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.92),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: AppTheme.cardShadow,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          color: AppTheme.primaryLight,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
                           child: Text(
-                            _selectedCategory?.name ?? 'Pilih Pos',
-                            overflow: TextOverflow.ellipsis,
+                            user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'A',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
                               color: AppTheme.primary,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 2),
-                        const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppTheme.primary),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 6),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 80),
+                        child: Text(
+                          user?.name.split(' ').first ?? 'Petugas',
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textMain,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
+
+            // Pos Selector Pill Bar
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: _showPosSelectorSheet,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+                        boxShadow: AppTheme.cardShadow,
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.location_on_rounded, size: 16, color: AppTheme.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Lingkup Pos Program:',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                                Text(
+                                  _selectedCategory != null
+                                      ? '[${_selectedCategory!.code}] ${_selectedCategory!.name}'
+                                      : 'Pilih Pos Program...',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.unfold_more_rounded, size: 18, color: AppTheme.primary),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: _loadDashboardData,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: AppTheme.cardShadow,
+                    ),
+                    child: const Icon(Icons.refresh_rounded, size: 20, color: AppTheme.primary),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
 
             // Kartu Ringkasan Saldo Kas
             Container(
@@ -1357,85 +1426,201 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-            : IndexedStack(
-                index: _currentTabIndex,
-                children: [
-                  _buildHomeTab(),
-                  TransactionsScreen(
-                    apiService: widget.apiService,
-                    categories: _categories,
-                    selectedCategoryId: _selectedCategory?.id,
-                    onRefreshNeeded: _loadDashboardData,
-                  ),
-                  MaterialScreen(
-                    apiService: widget.apiService,
-                    categories: _categories,
-                    selectedCategoryId: _selectedCategory?.id,
-                  ),
-                  DebtScreen(
-                    apiService: widget.apiService,
-                    categories: _categories,
-                    selectedCategoryId: _selectedCategory?.id,
-                  ),
-                  ProfileScreen(
-                    authService: widget.authService,
-                    apiService: widget.apiService,
-                    categories: _categories,
-                  ),
-                ],
+  Widget _buildDockItem({
+    required IconData icon,
+    required String label,
+    required int index,
+  }) {
+    final isActive = _currentTabIndex == index;
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() => _currentTabIndex = index),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 22,
+                color: isActive ? AppTheme.primary : const Color(0xFF94A3B8),
               ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  color: isActive ? AppTheme.primary : const Color(0xFF94A3B8),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                width: 16,
+                height: 2.5,
+                decoration: BoxDecoration(
+                  color: isActive ? AppTheme.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      bottomNavigationBar: Container(
+    );
+  }
+
+  Widget _buildCenterDockButton() {
+    return GestureDetector(
+      onTap: () => _openFormTransaction('income'),
+      child: Container(
+        transform: Matrix4.translationValues(0, -14, 0),
+        width: 52,
+        height: 52,
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: const Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1)),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF0081A7), Color(0xFF00AED6)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
+              color: const Color(0xFF0081A7).withValues(alpha: 0.38),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
-        child: NavigationBar(
-          selectedIndex: _currentTabIndex,
-          backgroundColor: Colors.white,
-          indicatorColor: AppTheme.primaryLight,
-          elevation: 0,
-          onDestinationSelected: (index) => setState(() => _currentTabIndex = index),
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded, color: AppTheme.primary),
-              label: 'Beranda',
+        child: const Icon(
+          Icons.add_rounded,
+          color: Colors.white,
+          size: 30,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBody: true,
+      body: Stack(
+        children: [
+          // 1. Background Gradient Dasar Top to Bottom (0% sampai 100%)
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFBAE6FD), // Biru langit cerah di atas (0%)
+                    Color(0xFFE0F2FE), // Biru cyan lembut (35%)
+                    Color(0xFFF0F7FF), // Biru portal Latee (70%)
+                    Color(0xFFFFFFFF), // Putih bersih di bawah (100%)
+                  ],
+                  stops: [0.0, 0.35, 0.70, 1.0],
+                ),
+              ),
             ),
-            NavigationDestination(
-              icon: Icon(Icons.receipt_long_outlined),
-              selectedIcon: Icon(Icons.receipt_long_rounded, color: AppTheme.primary),
-              label: 'Transaksi',
+          ),
+
+          // 2. Vector Artwork Pesantren Latee (Full Screen)
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.28,
+              child: Image.asset(
+                'assets/images/vector.png',
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+              ),
             ),
-            NavigationDestination(
-              icon: Icon(Icons.inventory_2_outlined),
-              selectedIcon: Icon(Icons.inventory_2_rounded, color: AppTheme.primary),
-              label: 'Material',
+          ),
+
+          // 3. Lapisan Gradasi Warna Top to Bottom Sampai 100% (Overlay)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    const Color(0xFFBAE6FD).withValues(alpha: 0.20), // 0% top
+                    const Color(0xFFE0F2FE).withValues(alpha: 0.45), // 40% mid
+                    const Color(0xFFF0F7FF).withValues(alpha: 0.75), // 75% mid-bottom
+                    Colors.white.withValues(alpha: 0.95),            // 100% bottom
+                  ],
+                  stops: const [0.0, 0.40, 0.75, 1.0],
+                ),
+              ),
             ),
-            NavigationDestination(
-              icon: Icon(Icons.handshake_outlined),
-              selectedIcon: Icon(Icons.handshake_rounded, color: AppTheme.primary),
-              label: 'Hutang',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded, color: AppTheme.primary),
-              label: 'Akun',
-            ),
-          ],
+          ),
+
+          // Main View Content
+          SafeArea(
+            bottom: false,
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+                : IndexedStack(
+                    index: _currentTabIndex,
+                    children: [
+                      _buildHomeTab(),
+                      TransactionsScreen(
+                        apiService: widget.apiService,
+                        categories: _categories,
+                        selectedCategoryId: _selectedCategory?.id,
+                        onRefreshNeeded: _loadDashboardData,
+                      ),
+                      MaterialScreen(
+                        apiService: widget.apiService,
+                        categories: _categories,
+                        selectedCategoryId: _selectedCategory?.id,
+                      ),
+                      DebtScreen(
+                        apiService: widget.apiService,
+                        categories: _categories,
+                        selectedCategoryId: _selectedCategory?.id,
+                      ),
+                      ProfileScreen(
+                        authService: widget.authService,
+                        apiService: widget.apiService,
+                        categories: _categories,
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+
+      // Floating Curved Dock Bottom Bar (Mirip Portal Mobile)
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.96),
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.09),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildDockItem(icon: Icons.dashboard_rounded, label: 'Beranda', index: 0),
+              _buildDockItem(icon: Icons.receipt_long_rounded, label: 'Mutasi', index: 1),
+              _buildCenterDockButton(),
+              _buildDockItem(icon: Icons.inventory_2_rounded, label: 'Material', index: 2),
+              _buildDockItem(icon: Icons.person_rounded, label: 'Akun', index: 4),
+            ],
+          ),
         ),
       ),
     );

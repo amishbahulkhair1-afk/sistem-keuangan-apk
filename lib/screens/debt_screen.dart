@@ -332,7 +332,10 @@ class _DebtScreenState extends State<DebtScreen> with SingleTickerProviderStateM
     }).toList();
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Text(
           'Hutang & Piutang Pos',
           style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18),
@@ -345,15 +348,18 @@ class _DebtScreenState extends State<DebtScreen> with SingleTickerProviderStateM
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: null,
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        icon: const Icon(Icons.add_rounded, size: 20),
-        label: Text('Catat Transaksi', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
-        onPressed: () => _showAddDebtDialog(),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 84),
+        child: FloatingActionButton.extended(
+          heroTag: null,
+          backgroundColor: AppTheme.primary,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          icon: const Icon(Icons.add_rounded, size: 20),
+          label: Text('Catat Transaksi', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13)),
+          onPressed: () => _showAddDebtDialog(),
+        ),
       ),
       body: Column(
         children: [
@@ -372,21 +378,27 @@ class _DebtScreenState extends State<DebtScreen> with SingleTickerProviderStateM
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.handshake_rounded, size: 16, color: AppTheme.primary),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Pos: [${currentCat.code}] ${currentCat.name}',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textMain,
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.handshake_rounded, size: 16, color: AppTheme.primary),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Pos: [${currentCat.code}] ${currentCat.name}',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textMain,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       '${_hutangList.length + _piutangList.length} Pihak Terdaftar',
                       style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.textMuted),
@@ -511,7 +523,7 @@ class _DebtScreenState extends State<DebtScreen> with SingleTickerProviderStateM
       color: AppTheme.primary,
       onRefresh: _loadData,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 80),
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 110),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -715,10 +727,15 @@ class _DebtScreenState extends State<DebtScreen> with SingleTickerProviderStateM
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Sudah Dibayar: ${Formatters.formatCurrency(party.totalBayar)} (${(paidRatio * 100).toStringAsFixed(0)}%)',
-                style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
+              Expanded(
+                child: Text(
+                  'Sudah Dibayar: ${Formatters.formatCurrency(party.totalBayar)} (${(paidRatio * 100).toStringAsFixed(0)}%)',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               InkWell(
                 onTap: onAction,
                 borderRadius: BorderRadius.circular(10),
@@ -763,7 +780,8 @@ class _DebtScreenState extends State<DebtScreen> with SingleTickerProviderStateM
     return Column(
       children: [
         // Filter Pills
-        Padding(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           child: Row(
             children: [
@@ -792,7 +810,7 @@ class _DebtScreenState extends State<DebtScreen> with SingleTickerProviderStateM
                   color: AppTheme.primary,
                   onRefresh: _loadData,
                   child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 80),
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 110),
                     itemCount: list.length,
                     separatorBuilder: (c, i) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
