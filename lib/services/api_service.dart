@@ -21,6 +21,7 @@ class ApiService {
     final map = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
+      'X-Client-Platform': 'flutter_apk',
     };
     if (authService.token != null) {
       map['Authorization'] = 'Bearer ${authService.token}';
@@ -33,8 +34,16 @@ class ApiService {
     final uri = Uri.parse('$_baseUrl/api/login');
     final response = await http.post(
       uri,
-      headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Client-Platform': 'flutter_apk',
+      },
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'client': 'flutter_apk',
+      }),
     );
 
     final data = jsonDecode(response.body);
