@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       animation: authService,
       builder: (context, _) {
         return MaterialApp(
-          title: 'Sistem Pelaporan',
+          title: 'Donasi Latee',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           home: authService.isLoading

@@ -44,10 +44,13 @@ jobs:
       - name: Build Android Release APK
         run: flutter build apk --release --verbose
 
+      - name: Rename APK for Distribution
+        run: cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/Donasi-Latee-Release.apk
+
       - name: Upload Release APK as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sistem-keuangan-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: Donasi-Latee-Release-APK
+          path: build/app/outputs/flutter-apk/Donasi-Latee-Release.apk
           if-no-files-found: error
           retention-days: 30
