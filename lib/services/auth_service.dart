@@ -38,7 +38,7 @@ class AuthService extends ChangeNotifier {
         !savedUrl.endsWith('/health') &&
         !savedUrl.contains('localhost') &&
         !savedUrl.contains('10.0.2.2')) {
-      _baseUrl = savedUrl;
+      _baseUrl = savedUrl.trim().replaceAll(RegExp(r'/+$'), '');
     } else {
       _baseUrl = defaultBaseUrl;
       await prefs.setString(_baseUrlKey, defaultBaseUrl);

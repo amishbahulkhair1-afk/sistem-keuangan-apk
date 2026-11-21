@@ -31,22 +31,40 @@ class ApiService {
 
   // --- AUTH ---
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final uri = Uri.parse('$_baseUrl/api/login');
-    final response = await http.post(
-      uri,
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-Client-Platform': 'flutter_apk',
-      },
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-        'client': 'flutter_apk',
-      }),
+    final body = jsonEncode({
+      'email': email,
+      'password': password,
+      'client': 'flutter_apk',
+    });
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-Client-Platform': 'flutter_apk',
+    };
+
+    // Gunakan endpoint /api/auth/login (standar produksi & lokal)
+    var response = await http.post(
+      Uri.parse('$_baseUrl/api/auth/login'),
+      headers: headers,
+      body: body,
     );
 
-    final data = jsonDecode(response.body);
+    // Fallback ke /api/login jika /api/auth/login mengembalikan 404
+    if (response.statusCode == 404) {
+      response = await http.post(
+        Uri.parse('$_baseUrl/api/login'),
+        headers: headers,
+        body: body,
+      );
+    }
+
+    Map<String, dynamic> data = {};
+    try {
+      data = jsonDecode(response.body);
+    } catch (_) {
+      data = {'message': 'Respon server tidak valid (${response.statusCode})'};
+    }
+
     if (response.statusCode == 200 && data['token'] != null) {
       final user = UserModel.fromJson(data['user']);
       await authService.saveSession(data['token'], user);
