@@ -329,13 +329,47 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const Icon(Icons.error_outline_rounded, color: AppTheme.expense, size: 18),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(
-                                      _errorMessage!,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: AppTheme.expense,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _errorMessage!,
+                                          style: GoogleFonts.plusJakartaSans(
+                                            color: AppTheme.expense,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        if (_errorMessage!.contains('Gagal terhubung') || _errorMessage!.contains('10.0.2.2')) ...[
+                                          const SizedBox(height: 8),
+                                          InkWell(
+                                            onTap: _showServerSettingsDialog,
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(8),
+                                                border: Border.all(color: AppTheme.expense.withValues(alpha: 0.4)),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(Icons.settings_ethernet_rounded, size: 14, color: AppTheme.expense),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    'Ubah URL / IP Server Sekarang',
+                                                    style: GoogleFonts.plusJakartaSans(
+                                                      fontSize: 11,
+                                                      fontWeight: FontWeight.w700,
+                                                      color: AppTheme.expense,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ),
                                 ],
