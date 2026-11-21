@@ -8,8 +8,8 @@ class AuthService extends ChangeNotifier {
   static const String _userKey = 'auth_user';
   static const String _baseUrlKey = 'api_base_url';
 
-  // Default server url: 10.0.2.2 is Android emulator localhost, 127.0.0.1 for desktop/web
-  static const String defaultBaseUrl = 'http://10.0.2.2:8000';
+  // Production server url
+  static const String defaultBaseUrl = 'https://donasi.annuqayahlatee.id/backend_donasi';
 
   String _baseUrl = defaultBaseUrl;
   String? _token;
@@ -28,7 +28,22 @@ class AuthService extends ChangeNotifier {
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
-    _baseUrl = prefs.getString(_baseUrlKey) ?? (kIsWeb ? 'http://localhost:8000' : defaultBaseUrl);
+    final savedUrl = prefs.getString(_baseUrlKey);
+
+    // Validasi URL tersimpan: jika kosong, bukan http/https, memiliki suffix /api atau /health,
+    // atau masih menggunakan localhost/10.0.2.2 lama, reset ke defaultBaseUrl yang baru.
+    if (savedUrl != null &&
+        savedUrl.startsWith('http') &&
+        !savedUrl.endsWith('/api') &&
+        !savedUrl.endsWith('/health') &&
+        !savedUrl.contains('localhost') &&
+        !savedUrl.contains('10.0.2.2')) {
+      _baseUrl = savedUrl;
+    } else {
+      _baseUrl = defaultBaseUrl;
+      await prefs.setString(_baseUrlKey, defaultBaseUrl);
+    }
+
     _token = prefs.getString(_tokenKey);
 
     final userJson = prefs.getString(_userKey);

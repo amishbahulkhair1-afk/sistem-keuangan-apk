@@ -20,11 +20,18 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: 'admin@pelaporan.test');
-  final _passwordController = TextEditingController(text: 'admin');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
   bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _handleLogin() async {
     setState(() {
@@ -48,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Gagal terhubung ke server backend: ${widget.authService.baseUrl}\nPastikan server aktif dan IP benar.';
+        _errorMessage = 'Gagal terhubung ke server backend.\nPastikan perangkat terhubung ke internet.';
       });
     } finally {
       if (mounted) {
@@ -57,71 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     }
-  }
-
-  void _showServerSettingsDialog() {
-    final controller = TextEditingController(text: widget.authService.baseUrl);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: AppTheme.primaryLight, borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.dns_rounded, color: AppTheme.primary, size: 20),
-            ),
-            const SizedBox(width: 12),
-            const Text('Pengaturan Server API', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Gunakan http://10.0.2.2:8000 untuk Android Emulator, http://localhost:8000 untuk Web/Desktop, atau IP LAN komputer untuk HP fisik.',
-              style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppTheme.textMuted, height: 1.4),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: 'Base URL Backend',
-                prefixIcon: const Icon(Icons.link_rounded, color: AppTheme.primary),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              widget.authService.setBaseUrl(controller.text);
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  content: Text('URL Server disimpan: ${controller.text}'),
-                ),
-              );
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -329,47 +271,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const Icon(Icons.error_outline_rounded, color: AppTheme.expense, size: 18),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _errorMessage!,
-                                          style: GoogleFonts.plusJakartaSans(
-                                            color: AppTheme.expense,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        if (_errorMessage!.contains('Gagal terhubung') || _errorMessage!.contains('10.0.2.2')) ...[
-                                          const SizedBox(height: 8),
-                                          InkWell(
-                                            onTap: _showServerSettingsDialog,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.circular(8),
-                                                border: Border.all(color: AppTheme.expense.withValues(alpha: 0.4)),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Icon(Icons.settings_ethernet_rounded, size: 14, color: AppTheme.expense),
-                                                  const SizedBox(width: 6),
-                                                  Text(
-                                                    'Ubah URL / IP Server Sekarang',
-                                                    style: GoogleFonts.plusJakartaSans(
-                                                      fontSize: 11,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: AppTheme.expense,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ],
+                                    child: Text(
+                                      _errorMessage!,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: AppTheme.expense,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -450,85 +358,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 28),
-
-                    // Quick Demo Switcher
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF0077B6).withValues(alpha: 0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'PILIH AKUN CEPAT (TESTING)',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textMuted,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            alignment: WrapAlignment.center,
-                            children: [
-                              _buildRoleChip('Admin Keuangan', 'admin@pelaporan.test', 'admin', AppTheme.primary),
-                              _buildRoleChip('Petugas Lapangan', 'petugas@pelaporan.test', 'admin', AppTheme.info),
-                              _buildRoleChip('Pimpinan', 'pimpinan@pelaporan.test', 'admin', AppTheme.purple),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Server Config Pill Button
-                    InkWell(
-                      onTap: _showServerSettingsDialog,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.wifi_rounded, size: 14, color: AppTheme.primary),
-                            const SizedBox(width: 6),
-                            Text(
-                              widget.authService.baseUrl,
-                              style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(width: 6),
-                            const Icon(Icons.tune_rounded, size: 13, color: AppTheme.textMuted),
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -539,37 +368,4 @@ class _LoginScreenState extends State<LoginScreen> {
     ),
   );
 }
-
-  Widget _buildRoleChip(String label, String email, String pwd, Color color) {
-    final isSelected = _emailController.text == email;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _emailController.text = email;
-          _passwordController.text = pwd;
-        });
-      },
-      borderRadius: BorderRadius.circular(10),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? color : const Color(0xFFE2E8F0),
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? color : AppTheme.textBody,
-          ),
-        ),
-      ),
-    );
-  }
 }
