@@ -65,12 +65,47 @@ class ApiService {
       data = {'message': 'Respon server tidak valid (${response.statusCode})'};
     }
 
-    if (response.statusCode == 200 && data['token'] != null) {
-      final user = UserModel.fromJson(data['user']);
-      await authService.saveSession(data['token'], user);
+    // Mendukung baik format "token" maupun "access_token" dari backend tutor
+    final token = data['token'] ?? data['access_token'] ?? data['data']?['token'] ?? data['data']?['access_token'];
+
+    if (response.statusCode == 200 && token != null) {
+      UserModel? user;
+      final rawUser = data['user'] ?? data['data']?['user'];
+      if (rawUser != null && rawUser is Map<String, dynamic>) {
+        user = UserModel.fromJson(rawUser);
+      } else {
+        // Ambil profil user dari /api/auth/me jika data['user'] tidak disertakan
+        try {
+          final meRes = await http.get(
+            Uri.parse('$_baseUrl/api/auth/me'),
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          );
+          if (meRes.statusCode == 200) {
+            final meData = jsonDecode(meRes.body);
+            final userObj = meData['user'] ?? meData;
+            if (userObj is Map<String, dynamic>) {
+              user = UserModel.fromJson(userObj);
+            }
+          }
+        } catch (_) {}
+      }
+
+      user ??= UserModel(
+        id: 1,
+        name: email.contains('@') ? email.split('@').first : email,
+        email: email,
+        role: 'petugas_lapangan',
+        accessLevel: 'full',
+      );
+
+      await authService.saveSession(token.toString(), user);
       return {'success': true, 'user': user};
     } else {
-      return {'success': false, 'message': data['detail'] ?? data['message'] ?? 'Login gagal'};
+      final msg = data['detail'] ?? data['message'] ?? data['error'] ?? 'Login gagal (${response.statusCode})';
+      return {'success': false, 'message': msg.toString()};
     }
   }
 

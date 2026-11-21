@@ -36,7 +36,7 @@ class UserModel {
 
     return UserModel(
       id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
-      name: json['name'] ?? '',
+      name: json['name'] ?? json['nama'] ?? json['full_name'] ?? json['username'] ?? '',
       email: json['email'] ?? '',
       role: json['role'] ?? 'petugas_lapangan',
       accessLevel: json['access_level'] ?? 'full',
@@ -63,7 +63,7 @@ class UserModel {
     };
   }
 
-  bool get isAdmin => role == 'admin_keuangan';
+  bool get isAdmin => role == 'admin_keuangan' || role == 'admin';
   bool get isPimpinan => role == 'pimpinan';
-  bool get isPetugasLapangan => role == 'petugas_lapangan';
+  bool get isPetugasLapangan => role == 'petugas_lapangan' || role == 'petugas';
 }
